@@ -1,0 +1,29 @@
+services:
+  mysql:
+    image: mysql:8.0.32
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=Secret_101
+    ports:
+      - '3306:3306'
+    networks:
+        - high-score-api-network
+  high-score-api:
+      build: 
+        context: ./
+        dockerfile: ./HighScoreAPI/Dockerfile.development
+      depends_on:
+        - mysql
+      environment:
+        - MYSQL_HOSTNAME=mysql
+        - MYSQL_USER=root
+        - MYSQL_PASSWORD=Secret_101
+        - MYSQL_DATABASE_NAME=HighScoreAPIDev
+      ports:
+      - '80:80'
+      networks:
+        - high-score-api-network
+
+networks:
+ high-score-api-network:
+    

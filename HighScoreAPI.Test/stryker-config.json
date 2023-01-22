@@ -1,0 +1,15 @@
+{
+  "stryker-config": {
+    "mutate": [
+      "!**/DAL/Builders/MySqlOptionsBuilder.cs",
+      "!**/DAL/Mappings/*",
+      "!**/DAL/*Context.cs",
+      "!**/Extensions/ServiceCollectionExtensions.cs",
+      "!**/Migrations/*",
+      "!**/Program.cs"
+    ],
+    "ignore-methods": [
+      "*LogInformation"
+    ]
+  }
+}
