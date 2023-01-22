@@ -1,5 +1,7 @@
 # High Score API
 
+A simple REST API used to keep track of high scores, made in ASP.NET Core 6.0
+
 ## Usage
 
 ```
