@@ -2,16 +2,21 @@
 using HighScoreServer.DAL.DataMappers;
 using HighScoreServer.Exceptions;
 using HighScoreServer.Models;
+using ProfanityFilter.Interfaces;
+using System.Text.RegularExpressions;
+using System;
 
 namespace HighScoreServer.Services;
 
 public class HighScoreService : IHighScoreService
 {
     private readonly IHighScoreDataMapper _dataMapper;
+    private readonly IProfanityFilter _profanityFilter;
 
-    public HighScoreService(IHighScoreDataMapper dataMapper)
+    public HighScoreService(IHighScoreDataMapper dataMapper, IProfanityFilter profanityFilter)
     {
         _dataMapper = dataMapper;
+        _profanityFilter = profanityFilter;
     }
 
     public Task<IEnumerable<HighScore>> GetTop10()
@@ -31,11 +36,18 @@ public class HighScoreService : IHighScoreService
 
     public Task AddHighScore(HighScore highScoreToAdd)
     {
+        if (highScoreToAdd.Score <= 0)
+            throw new InvalidHighScoreException("Your Score must be greater than 0!");
+
         if (string.IsNullOrWhiteSpace(highScoreToAdd.Username) || highScoreToAdd.Username.Length > HighScoreProperties.UsernameMaxLength)
             throw new InvalidHighScoreException($"Your Username must be between 1 and {HighScoreProperties.UsernameMaxLength} characters!");
 
-        if (highScoreToAdd.Score <= 0)
-            throw new InvalidHighScoreException("Your Score must be greater than 0!");
+        highScoreToAdd.Username = _profanityFilter.CensorString(highScoreToAdd.Username, ' ');
+        highScoreToAdd.Username = Regex.Replace(highScoreToAdd.Username, @"\s+", " ");
+        highScoreToAdd.Username = highScoreToAdd.Username.Trim();
+
+        if (string.IsNullOrWhiteSpace(highScoreToAdd.Username))
+            throw new InvalidHighScoreException($"Your Username must be between 1 and {HighScoreProperties.UsernameMaxLength} characters!");
 
         return _dataMapper.AddHighScore(highScoreToAdd);
     }

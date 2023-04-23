@@ -3,6 +3,7 @@ using HighScoreServer.DAL.DataMappers;
 using HighScoreServer.Extensions;
 using HighScoreServer.Services;
 using Microsoft.EntityFrameworkCore;
+using ProfanityFilter.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContextOptions<HighScoreContext>();
 builder.Services.AddTransient<IHighScoreDataMapper, HighScoreDataMapper>();
 builder.Services.AddTransient<IHighScoreService, HighScoreService>();
+builder.Services.AddSingleton<IProfanityFilter>(_ => new ProfanityFilter.ProfanityFilter());
 
 EnsureDatabaseIsCreated(builder);
 
