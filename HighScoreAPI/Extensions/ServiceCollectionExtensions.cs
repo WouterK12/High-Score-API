@@ -1,10 +1,41 @@
-﻿using HighScoreServer.DAL.Builders;
+﻿using HighScoreAPI.Middleware;
+using HighScoreServer.DAL.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace HighScoreServer.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddSwaggerGenWithApiKeyHeader(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "High Score API", Version = "1" });
+            c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme()
+            {
+                Name = HeaderNames.XAPIKey,
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "ApiKeyScheme"
+            });
+
+            var key = new OpenApiSecurityScheme()
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "ApiKey"
+                },
+                In = ParameterLocation.Header
+            };
+            var requirement = new OpenApiSecurityRequirement() { { key, new List<string>() } };
+            c.AddSecurityRequirement(requirement);
+        });
+
+        return services;
+    }
+
     public static IServiceCollection AddDbContextOptions<T>(this IServiceCollection services) where T : DbContext
     {
         string? mysqlHostname = Environment.GetEnvironmentVariable("MYSQL_HOSTNAME");

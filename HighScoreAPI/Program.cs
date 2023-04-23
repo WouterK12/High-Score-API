@@ -1,3 +1,4 @@
+using HighScoreAPI.Middleware;
 using HighScoreServer.DAL;
 using HighScoreServer.DAL.DataMappers;
 using HighScoreServer.Extensions;
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGenWithApiKeyHeader();
 
 builder.Services.AddDbContextOptions<HighScoreContext>();
 builder.Services.AddTransient<IHighScoreDataMapper, HighScoreDataMapper>();
@@ -28,7 +29,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.MapControllers();
 

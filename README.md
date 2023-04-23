@@ -10,7 +10,10 @@ docker-compose up --build
 
 ## Endpoints
 
-| method | endpoint                            | description                              |
+All endpoints require authentication using the `X-API-Key` header.  
+Make sure to change the default allowed key `"YOUR-VERY-SECRET-KEY"` in `appsettings.json`.
+
+| Method | Endpoint                            | Description                              |
 | ------ | ----------------------------------- | ---------------------------------------- |
 | GET    | `/api/highscores/top10`             | Get the top 10 of highest scores         |
 | GET    | `/api/highscores/search/{username}` | Get the high score of user by `username` |

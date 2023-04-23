@@ -19,8 +19,10 @@ public class HighScoreController : ControllerBase
     }
 
     [HttpGet("top10")]
-    [ProducesResponseType(typeof(IEnumerable<HighScore>), 200)]
-    [ProducesResponseType(typeof(string), 500)]
+    [ProducesResponseType(typeof(IEnumerable<HighScore>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<HighScore>>> GetTop10()
     {
         try
@@ -38,9 +40,11 @@ public class HighScoreController : ControllerBase
     }
 
     [HttpGet("search/{username}")]
-    [ProducesResponseType(typeof(HighScore), 200)]
-    [ProducesResponseType(typeof(string), 404)]
-    [ProducesResponseType(typeof(string), 500)]
+    [ProducesResponseType(typeof(HighScore), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<HighScore>> GetHighScoreByUsername(string username)
     {
         try
@@ -62,9 +66,10 @@ public class HighScoreController : ControllerBase
     }
 
     [HttpPost("add")]
-    [ProducesResponseType(typeof(string), 400)]
-    [ProducesResponseType(typeof(HighScore), 201)]
-    [ProducesResponseType(typeof(string), 500)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> AddHighScore(HighScore highScoreToAdd)
     {
         try
