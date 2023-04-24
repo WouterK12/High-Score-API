@@ -19,9 +19,12 @@ public class HighScoreService : IHighScoreService
         _profanityFilter = profanityFilter;
     }
 
-    public Task<IEnumerable<HighScore>> GetTop10()
+    public Task<IEnumerable<HighScore>> GetTop(int amount)
     {
-        return _dataMapper.GetTop10();
+        if (amount <= 0)
+            throw new ArgumentOutOfRangeException(null, "The amount must be greater than 0!");
+
+        return _dataMapper.GetTop(amount);
     }
 
     public async Task<HighScore> GetHighScoreByUsername(string username)
@@ -50,5 +53,10 @@ public class HighScoreService : IHighScoreService
             throw new InvalidHighScoreException($"Your Username must be between 1 and {HighScoreProperties.UsernameMaxLength} characters!");
 
         return _dataMapper.AddHighScore(highScoreToAdd);
+    }
+
+    public Task DeleteAllHighScores()
+    {
+        return _dataMapper.DeleteAllHighScores();
     }
 }

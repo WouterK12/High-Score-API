@@ -18,18 +18,22 @@ public class HighScoreController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("top10")]
+    [HttpGet("top/{amount}")]
     [ProducesResponseType(typeof(IEnumerable<HighScore>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<HighScore>>> GetTop10()
+    public async Task<ActionResult<IEnumerable<HighScore>>> GetTop(int amount = 10)
     {
         try
         {
-            var result = await _service.GetTop10();
+            var result = await _service.GetTop(amount);
 
             return Ok(result);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
@@ -65,7 +69,7 @@ public class HighScoreController : ControllerBase
         }
     }
 
-    [HttpPost("add")]
+    [HttpPost]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
@@ -81,6 +85,27 @@ public class HighScoreController : ControllerBase
         catch (InvalidHighScoreException ex)
         {
             return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500, "Oops! Something went wrong. Try again later.");
+        }
+    }
+
+    [HttpDelete]
+    [ProducesResponseType(typeof(HighScore), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteAllHighScores()
+    {
+        try
+        {
+            await _service.DeleteAllHighScores();
+
+            return Ok();
         }
         catch (Exception ex)
         {

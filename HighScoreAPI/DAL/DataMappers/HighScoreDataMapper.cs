@@ -12,13 +12,13 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         _options = options;
     }
 
-    public async Task<IEnumerable<HighScore>> GetTop10()
+    public async Task<IEnumerable<HighScore>> GetTop(int amount)
     {
         using var context = new HighScoreContext(_options);
 
         var result = await context.HighScores
             .OrderByDescending(hs => hs.Score)
-            .Take(10)
+            .Take(amount)
             .ToListAsync();
 
         return result;
@@ -49,6 +49,15 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         {
             existingHighScore.Score = highScoreToAdd.Score;
         }
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAllHighScores()
+    {
+        using var context = new HighScoreContext(_options);
+
+        context.RemoveRange(context.HighScores);
 
         await context.SaveChangesAsync();
     }

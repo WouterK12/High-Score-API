@@ -25,25 +25,63 @@ public class HighScoreServiceTest
     }
 
     [TestMethod]
-    public async Task GetTop10_HighScoreService_CallsDataMapper()
+    public async Task GetTop_10_HighScoreService_CallsDataMapper()
     {
         // Arrange
+        int amount = 10;
         var highScores = new List<HighScore>()
         {
             new() { Username = "K03N", Score = 423 },
             new() { Username = "Your Partner In Science", Score = 34 }
         };
-        _dataMapperMock.Setup(s => s.GetTop10())
+        _dataMapperMock.Setup(s => s.GetTop(It.IsAny<int>()))
                        .ReturnsAsync(highScores);
 
         // Act
-        var result = await _sut.GetTop10();
+        var result = await _sut.GetTop(amount);
 
         // Assert
-        _dataMapperMock.Verify(dm => dm.GetTop10(), Times.Once);
+        _dataMapperMock.Verify(dm => dm.GetTop(10), Times.Once);
         Assert.AreEqual(2, result.Count());
         Assert.IsTrue(result.Any(hs => hs.Username == "K03N" && hs.Score == 423));
         Assert.IsTrue(result.Any(hs => hs.Username == "Your Partner In Science" && hs.Score == 34));
+    }
+
+    [DataTestMethod]
+    [DataRow(-1)]
+    [DataRow(0)]
+    public async Task GetTop_LessOrEqual0_HighScoreService_ThrowsArgumentOutOfRangeException(int amount)
+    {
+        // Act
+        async Task<IEnumerable<HighScore>> Act()
+        {
+            return await _sut.GetTop(amount);
+        }
+
+        // Assert
+        ArgumentOutOfRangeException ex = await Assert.ThrowsExceptionAsync<ArgumentOutOfRangeException>(Act);
+        Assert.AreEqual("The amount must be greater than 0!", ex.Message);
+    }
+
+    [TestMethod]
+    public async Task GetTop_1_HighScoreService_DoesNotThrowArgumentOutOfRangeException()
+    {
+        // Arrange
+        int amount = 1;
+        _dataMapperMock.Setup(s => s.GetTop(It.IsAny<int>()))
+                       .ReturnsAsync(It.IsAny<IEnumerable<HighScore>>());
+
+        try
+        {
+            // Act
+            await _sut.GetTop(amount);
+        }
+        catch (Exception)
+        {
+            // Assert
+            // Should not throw Exception
+            Assert.Fail();
+        }
     }
 
     [TestMethod]
@@ -123,7 +161,7 @@ public class HighScoreServiceTest
             // Act
             await _sut.AddHighScore(highScoreToAdd);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Assert
             // Should not throw Exception
@@ -267,5 +305,19 @@ public class HighScoreServiceTest
             hs.Username == "K03N" &&
             hs.Score == 423)
             ), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteAllHighScores_HighScoreService_CallsDataMapper()
+    {
+        // Arrange
+        _dataMapperMock.Setup(s => s.DeleteAllHighScores())
+                       .Returns(Task.CompletedTask);
+
+        // Act
+        await _sut.DeleteAllHighScores();
+
+        // Assert
+        _dataMapperMock.Verify(s => s.DeleteAllHighScores(), Times.Once);
     }
 }

@@ -5,14 +5,18 @@ namespace HighScoreAPI.Middleware;
 public class ApiKeyMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly string _apiKey;
+    private readonly string _clientApiKey;
+    private readonly string _adminApiKey;
 
     private const string ContentTypePlainText = "text/plain";
 
     public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
-        _apiKey = configuration.GetValue<string>(HeaderNames.XAPIKey);
+
+        var apiKeys = configuration.GetSection(HeaderNames.XAPIKey);
+        _clientApiKey = apiKeys.GetValue<string>("Client");
+        _adminApiKey = apiKeys.GetValue<string>("Admin");
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -25,7 +29,13 @@ public class ApiKeyMiddleware
             return;
         }
 
-        if (!_apiKey.Equals(extractedApiKey))
+        if (context.Request.Method == HttpMethods.Delete && !extractedApiKey.Equals(_adminApiKey))
+        {
+            await WriteUnauthorized(context);
+            return;
+        }
+
+        if (!extractedApiKey.Equals(_clientApiKey) && !extractedApiKey.Equals(_adminApiKey))
         {
             await WriteUnauthorized(context);
             return;

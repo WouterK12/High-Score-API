@@ -11,17 +11,18 @@ docker-compose up --build
 ## Endpoints
 
 All endpoints require authentication using the `X-API-Key` header.  
-Make sure to change the default allowed key `"YOUR-VERY-SECRET-KEY"` in `appsettings.json`.
+Make sure to change the default allowed key `"YOUR-SECRET-CLIENT-KEY"` in `appsettings.json`.
 
 | Method | Endpoint                            | Description                              |
 | ------ | ----------------------------------- | ---------------------------------------- |
-| GET    | `/api/highscores/top10`             | Get the top 10 of highest scores         |
+| GET    | `/api/highscores/top/{amount}`      | Get the top `amount` of highest scores   |
 | GET    | `/api/highscores/search/{username}` | Get the high score of user by `username` |
-| POST   | `/api/highscores/add`               | Add a new high score                     |
+| POST   | `/api/highscores`                   | Add a new high score                     |
+| DELETE | `/api/highscores`                   | Delete all high scores                   |
 
 ### Adding a new high score
 
-The `username` must be between `1` and `30` characters.  
+The `username` must be between `1` and `30` characters. Detected profanity will be removed from the name.  
 The `score` must be `1` or higher.
 
 Example `JSON`:
@@ -32,3 +33,8 @@ Example `JSON`:
   "score": 490
 }
 ```
+
+### Deleting all high scores
+
+The `DELETE` endpoint requires authentication using the `X-API-Key` header.  
+The default allowed key `"YOUR-SECRET-ADMIN-KEY"` is different from the other endpoints and should be changed in `appsettings.json`.

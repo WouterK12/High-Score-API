@@ -33,7 +33,7 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task GetTop10_HighScoreDataMapper_ReturnsTop10ScoreDescending()
+    public async Task GetTop_10_HighScoreDataMapper_ReturnsTop10ScoreDescending()
     {
         // Arrange
         var all12HighScores = new List<HighScore>()
@@ -54,11 +54,12 @@ public class HighScoreDataMapperTest
         using var context = new HighScoreContext(_options);
         context.AddRange(all12HighScores);
         context.SaveChanges();
+        var amount = 10;
 
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        var result = await sut.GetTop10();
+        var result = await sut.GetTop(amount);
 
         // Assert
         var resultList = result.ToList();
@@ -166,5 +167,32 @@ public class HighScoreDataMapperTest
         using var assertContext = new HighScoreContext(_options);
         Assert.AreEqual(1, assertContext.HighScores.Count());
         Assert.IsTrue(assertContext.HighScores.Any(hs => hs.Username == "K03N" && hs.Score == 423));
+    }
+
+    [TestMethod]
+    public async Task DeleteAllHighScores_HighScoreDataMapper_DeletesAllHighScores()
+    {
+        // Arrange
+        var highScores = new List<HighScore>()
+        {
+            new() { Username = "K03N", Score = 423 },
+            new() { Username = "Your Partner In Science", Score = 34 },
+            new() { Username = "Vikko", Score = 83 },
+            new() { Username = "UFOcreator4074", Score = 16 },
+            new() { Username = "Hoeleboele", Score = 478 },
+            new() { Username = "Jarno2212", Score = 183 }
+        };
+        using var context = new HighScoreContext(_options);
+        context.AddRange(highScores);
+        context.SaveChanges();
+
+        var sut = new HighScoreDataMapper(_options);
+
+        // Act
+        await sut.DeleteAllHighScores();
+
+        // Assert
+        using var assertContext = new HighScoreContext(_options);
+        Assert.AreEqual(0, assertContext.HighScores.Count());
     }
 }
