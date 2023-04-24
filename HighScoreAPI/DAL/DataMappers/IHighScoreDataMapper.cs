@@ -4,8 +4,8 @@ namespace HighScoreAPI.DAL.DataMappers;
 
 public interface IHighScoreDataMapper
 {
-    Task<IEnumerable<HighScore>> GetTop(int amount);
-    Task<HighScore> GetHighScoreByUsername(string username);
-    Task AddHighScore(HighScore highScoreToAdd);
-    Task DeleteAllHighScores();
+    Task<IEnumerable<HighScore>> GetTopAsync(int amount);
+    Task<HighScore> GetHighScoreByUsernameAsync(string username);
+    Task AddHighScoreAsync(HighScore highScoreToAdd);
+    Task DeleteAllHighScoresAsync();
 }

@@ -33,7 +33,7 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task GetTop_10_HighScoreDataMapper_ReturnsTop10ScoreDescending()
+    public async Task GetTopAsync_10_HighScoreDataMapper_ReturnsTop10ScoreDescending()
     {
         // Arrange
         var all12HighScores = new List<HighScore>()
@@ -59,7 +59,7 @@ public class HighScoreDataMapperTest
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        var result = await sut.GetTop(amount);
+        var result = await sut.GetTopAsync(amount);
 
         // Assert
         var resultList = result.ToList();
@@ -77,21 +77,21 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_UsernameNotInDb_HighScoreDataMapper_ReturnsNull()
+    public async Task GetHighScoreByUsernameAsync_UsernameNotInDb_HighScoreDataMapper_ReturnsNull()
     {
         // Arrange
         var username = "K03N";
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        var result = await sut.GetHighScoreByUsername(username);
+        var result = await sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
         Assert.IsNull(result);
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_UsernameInDb_HighScoreDataMapper_ReturnsHighScore()
+    public async Task GetHighScoreByUsernameAsync_UsernameInDb_HighScoreDataMapper_ReturnsHighScore()
     {
         // Arrange
         var username = "K03N";
@@ -104,7 +104,7 @@ public class HighScoreDataMapperTest
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        var result = await sut.GetHighScoreByUsername(username);
+        var result = await sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
         Assert.AreEqual("K03N", result.Username);
@@ -112,14 +112,14 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScoreNotInDb_HighScoreDataMapper_AddsToDb()
+    public async Task AddHighScoreAsync_HighScoreNotInDb_HighScoreDataMapper_AddsToDb()
     {
         // Arrange
         var highScoreToAdd = new HighScore() { Username = "K03N", Score = 423 };
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        await sut.AddHighScore(highScoreToAdd);
+        await sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         using var context = new HighScoreContext(_options);
@@ -128,7 +128,7 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScoreHigherThanInDb_HighScoreDataMapper_UpdatesHighScoreInDb()
+    public async Task AddHighScoreAsync_HighScoreHigherThanInDb_HighScoreDataMapper_UpdatesHighScoreInDb()
     {
         // Arrange
         var highScore = new HighScore() { Username = "K03N", Score = 423 };
@@ -140,7 +140,7 @@ public class HighScoreDataMapperTest
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        await sut.AddHighScore(highScoreToAdd);
+        await sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         using var assertContext = new HighScoreContext(_options);
@@ -149,7 +149,7 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScoreLowerThanInDb_HighScoreDataMapper_DoesNotUpdateHighScoreInDb()
+    public async Task AddHighScoreAsync_HighScoreLowerThanInDb_HighScoreDataMapper_DoesNotUpdateHighScoreInDb()
     {
         // Arrange
         var highScore = new HighScore() { Username = "K03N", Score = 423 };
@@ -161,7 +161,7 @@ public class HighScoreDataMapperTest
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        await sut.AddHighScore(highScoreToAdd);
+        await sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         using var assertContext = new HighScoreContext(_options);
@@ -170,7 +170,7 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
-    public async Task DeleteAllHighScores_HighScoreDataMapper_DeletesAllHighScores()
+    public async Task DeleteAllHighScoresAsync_HighScoreDataMapper_DeletesAllHighScores()
     {
         // Arrange
         var highScores = new List<HighScore>()
@@ -189,7 +189,7 @@ public class HighScoreDataMapperTest
         var sut = new HighScoreDataMapper(_options);
 
         // Act
-        await sut.DeleteAllHighScores();
+        await sut.DeleteAllHighScoresAsync();
 
         // Assert
         using var assertContext = new HighScoreContext(_options);

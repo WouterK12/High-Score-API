@@ -63,7 +63,7 @@ public class ApiKeyMiddlewareTest
         var context = new DefaultHttpContext();
         string correctKey = "correct key";
         context.Request.Headers.Add(HeaderNames.XAPIKey, correctKey);
-        var configuration = BuildXAPIKeyConfiguration(correctKey, correctKey);
+        var configuration = BuildXAPIKeyConfiguration(correctKey, "other key");
 
         var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
 

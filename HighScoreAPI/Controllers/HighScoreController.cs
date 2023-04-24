@@ -23,11 +23,11 @@ public class HighScoreController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<HighScore>>> GetTop(int amount = 10)
+    public async Task<ActionResult<IEnumerable<HighScore>>> GetTopAsync(int amount = 10)
     {
         try
         {
-            var result = await _service.GetTop(amount);
+            var result = await _service.GetTopAsync(amount);
 
             return Ok(result);
         }
@@ -49,11 +49,11 @@ public class HighScoreController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<HighScore>> GetHighScoreByUsername(string username)
+    public async Task<ActionResult<HighScore>> GetHighScoreByUsernameAsync(string username)
     {
         try
         {
-            var result = await _service.GetHighScoreByUsername(username);
+            var result = await _service.GetHighScoreByUsernameAsync(username);
 
             return Ok(result);
         }
@@ -74,11 +74,11 @@ public class HighScoreController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> AddHighScore(HighScore highScoreToAdd)
+    public async Task<ActionResult> AddHighScoreAsync(HighScore highScoreToAdd)
     {
         try
         {
-            await _service.AddHighScore(highScoreToAdd);
+            await _service.AddHighScoreAsync(highScoreToAdd);
 
             return Created($"/api/highscores/search/{highScoreToAdd.Username}", highScoreToAdd);
         }
@@ -99,11 +99,11 @@ public class HighScoreController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAllHighScores()
+    public async Task<ActionResult> DeleteAllHighScoresAsync()
     {
         try
         {
-            await _service.DeleteAllHighScores();
+            await _service.DeleteAllHighScoresAsync();
 
             return Ok();
         }

@@ -12,7 +12,7 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         _options = options;
     }
 
-    public async Task<IEnumerable<HighScore>> GetTop(int amount)
+    public async Task<IEnumerable<HighScore>> GetTopAsync(int amount)
     {
         using var context = new HighScoreContext(_options);
 
@@ -24,7 +24,7 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         return result;
     }
 
-    public async Task<HighScore> GetHighScoreByUsername(string username)
+    public async Task<HighScore> GetHighScoreByUsernameAsync(string username)
     {
         using var context = new HighScoreContext(_options);
 
@@ -34,7 +34,7 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         return result!;
     }
 
-    public async Task AddHighScore(HighScore highScoreToAdd)
+    public async Task AddHighScoreAsync(HighScore highScoreToAdd)
     {
         using var context = new HighScoreContext(_options);
 
@@ -53,7 +53,7 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAllHighScores()
+    public async Task DeleteAllHighScoresAsync()
     {
         using var context = new HighScoreContext(_options);
 

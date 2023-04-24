@@ -27,7 +27,7 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task GetTop_5_HighScoreController_CallsService()
+    public async Task GetTopAsync_5_HighScoreController_CallsService()
     {
         // Arrange
         int amount = 5;
@@ -36,18 +36,18 @@ public class HighScoreControllerTest
             new() { Username = "K03N", Score = 423 },
             new() { Username = "Your Partner In Science", Score = 34 }
         };
-        _serviceMock.Setup(s => s.GetTop(It.IsAny<int>()))
+        _serviceMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
                     .ReturnsAsync(highScores);
 
         // Act
-        await _sut.GetTop(amount);
+        await _sut.GetTopAsync(amount);
 
         // Assert
-        _serviceMock.Verify(s => s.GetTop(5), Times.Once);
+        _serviceMock.Verify(s => s.GetTopAsync(5), Times.Once);
     }
 
     [TestMethod]
-    public async Task GetTop_HighScoreController_CallsServiceWithDefaultAmount10()
+    public async Task GetTopAsync_HighScoreController_CallsServiceWithDefaultAmount10()
     {
         // Arrange
         var highScores = new List<HighScore>()
@@ -55,18 +55,18 @@ public class HighScoreControllerTest
             new() { Username = "K03N", Score = 423 },
             new() { Username = "Your Partner In Science", Score = 34 }
         };
-        _serviceMock.Setup(s => s.GetTop(It.IsAny<int>()))
+        _serviceMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
                     .ReturnsAsync(highScores);
 
         // Act
-        await _sut.GetTop();
+        await _sut.GetTopAsync();
 
         // Assert
-        _serviceMock.Verify(s => s.GetTop(10), Times.Once);
+        _serviceMock.Verify(s => s.GetTopAsync(10), Times.Once);
     }
 
     [TestMethod]
-    public async Task GetTop_HighScoreController_ReturnsOk()
+    public async Task GetTopAsync_HighScoreController_ReturnsOk()
     {
         // Arrange
         var highScores = new List<HighScore>()
@@ -74,11 +74,11 @@ public class HighScoreControllerTest
             new() { Username = "K03N", Score = 423 },
             new() { Username = "Your Partner In Science", Score = 34 }
         };
-        _serviceMock.Setup(s => s.GetTop(It.IsAny<int>()))
+        _serviceMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
                     .ReturnsAsync(highScores);
 
         // Act
-        var result = await _sut.GetTop();
+        var result = await _sut.GetTopAsync();
 
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(OkObjectResult));
@@ -91,14 +91,14 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task GetTop_HighScoreController_ServiceArgumentOutOfRangeException_ReturnsStatusCode400()
+    public async Task GetTopAsync_HighScoreController_ServiceArgumentOutOfRangeException_ReturnsStatusCode400()
     {
         // Arrange
-        _serviceMock.Setup(s => s.GetTop(It.IsAny<int>()))
+        _serviceMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
                     .ThrowsAsync(new ArgumentOutOfRangeException(null, "Something went wrong!"));
 
         // Act
-        var result = await _sut.GetTop();
+        var result = await _sut.GetTopAsync();
 
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(BadRequestObjectResult));
@@ -108,30 +108,30 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task GetTop_10_HighScoreController_ServiceThrowsException_CallsLogger()
+    public async Task GetTopAsync_10_HighScoreController_ServiceThrowsException_CallsLogger()
     {
         // Arrange
         int amount = 10;
-        _serviceMock.Setup(s => s.GetTop(It.IsAny<int>()))
+        _serviceMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        await _sut.GetTop(amount);
+        await _sut.GetTopAsync(amount);
 
         // Assert
         _loggerMock.Verify(LogLevel.Error, "Something went wrong!", Times.Once);
     }
 
     [TestMethod]
-    public async Task GetTop_10_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
+    public async Task GetTopAsync_10_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
     {
         // Arrange
         int amount = 10;
-        _serviceMock.Setup(s => s.GetTop(It.IsAny<int>()))
+        _serviceMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        var result = await _sut.GetTop(amount);
+        var result = await _sut.GetTopAsync(amount);
 
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(ObjectResult));
@@ -141,32 +141,32 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_HighScoreController_CallsService()
+    public async Task GetHighScoreByUsernameAsync_HighScoreController_CallsService()
     {
         // Arrange
         var username = "K03N";
         var highScore = new HighScore() { Username = username, Score = 423 };
-        _serviceMock.Setup(s => s.GetHighScoreByUsername(It.IsAny<string>()))
+        _serviceMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
                     .ReturnsAsync(highScore);
 
         // Act
-        await _sut.GetHighScoreByUsername(username);
+        await _sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
-        _serviceMock.Verify(s => s.GetHighScoreByUsername("K03N"), Times.Once);
+        _serviceMock.Verify(s => s.GetHighScoreByUsernameAsync("K03N"), Times.Once);
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_HighScoreController_ReturnsOk()
+    public async Task GetHighScoreByUsernameAsync_HighScoreController_ReturnsOk()
     {
         // Arrange
         var username = "K03N";
         var highScore = new HighScore() { Username = username, Score = 423 };
-        _serviceMock.Setup(s => s.GetHighScoreByUsername(It.IsAny<string>()))
+        _serviceMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
                     .ReturnsAsync(highScore);
 
         // Act
-        var result = await _sut.GetHighScoreByUsername(username);
+        var result = await _sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(OkObjectResult));
@@ -178,15 +178,15 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_HighScoreController_ServiceThrowsHighScoreNotFoundException_ReturnsNotFound()
+    public async Task GetHighScoreByUsernameAsync_HighScoreController_ServiceThrowsHighScoreNotFoundException_ReturnsNotFound()
     {
         // Arrange
         var username = "K03N";
-        _serviceMock.Setup(s => s.GetHighScoreByUsername(It.IsAny<string>()))
+        _serviceMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
                     .ThrowsAsync(new HighScoreNotFoundException(username));
 
         // Act
-        var result = await _sut.GetHighScoreByUsername(username);
+        var result = await _sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(NotFoundObjectResult));
@@ -195,30 +195,30 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_HighScoreController_ServiceThrowsException_CallsLogger()
+    public async Task GetHighScoreByUsernameAsync_HighScoreController_ServiceThrowsException_CallsLogger()
     {
         // Arrange
         var username = "K03N";
-        _serviceMock.Setup(s => s.GetHighScoreByUsername(It.IsAny<string>()))
+        _serviceMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        await _sut.GetHighScoreByUsername(username);
+        await _sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
         _loggerMock.Verify(LogLevel.Error, "Something went wrong!", Times.Once);
     }
 
     [TestMethod]
-    public async Task GetHighScoreByUsername_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
+    public async Task GetHighScoreByUsernameAsync_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
     {
         // Arrange
         var username = "K03N";
-        _serviceMock.Setup(s => s.GetHighScoreByUsername(It.IsAny<string>()))
+        _serviceMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        var result = await _sut.GetHighScoreByUsername(username);
+        var result = await _sut.GetHighScoreByUsernameAsync(username);
 
         // Assert
         Assert.IsInstanceOfType(result.Result, typeof(ObjectResult));
@@ -228,33 +228,33 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScore_HighScoreController_CallsService()
+    public async Task AddHighScoreAsync_HighScore_HighScoreController_CallsService()
     {
         // Arrange
         var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
-        _serviceMock.Setup(s => s.AddHighScore(It.IsAny<HighScore>()))
+        _serviceMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
                     .Returns(Task.CompletedTask);
 
         // Act
-        await _sut.AddHighScore(highScoreToAdd);
+        await _sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
-        _serviceMock.Verify(s => s.AddHighScore(It.Is<HighScore>(hs =>
+        _serviceMock.Verify(s => s.AddHighScoreAsync(It.Is<HighScore>(hs =>
             hs.Username == "K03N" &&
             hs.Score == 423)
             ), Times.Once);
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScore_HighScoreController_ReturnsCreated()
+    public async Task AddHighScoreAsync_HighScore_HighScoreController_ReturnsCreated()
     {
         // Arrange
         var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
-        _serviceMock.Setup(s => s.AddHighScore(It.IsAny<HighScore>()))
+        _serviceMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
                     .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _sut.AddHighScore(highScoreToAdd);
+        var result = await _sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(CreatedResult));
@@ -267,15 +267,15 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScore_HighScoreController_ServiceThrowsInvalidHighScoreException_ReturnsBadRequest()
+    public async Task AddHighScoreAsync_HighScore_HighScoreController_ServiceThrowsInvalidHighScoreException_ReturnsBadRequest()
     {
         // Arrange
         var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
-        _serviceMock.Setup(s => s.AddHighScore(It.IsAny<HighScore>()))
+        _serviceMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
                     .ThrowsAsync(new InvalidHighScoreException("Something went wrong!"));
 
         // Act
-        var result = await _sut.AddHighScore(highScoreToAdd);
+        var result = await _sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
@@ -284,30 +284,30 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScore_HighScoreController_ServiceThrowsException_CallsLogger()
+    public async Task AddHighScoreAsync_HighScore_HighScoreController_ServiceThrowsException_CallsLogger()
     {
         // Arrange
         var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
-        _serviceMock.Setup(s => s.AddHighScore(It.IsAny<HighScore>()))
+        _serviceMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        await _sut.AddHighScore(highScoreToAdd);
+        await _sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         _loggerMock.Verify(LogLevel.Error, "Something went wrong!", Times.Once);
     }
 
     [TestMethod]
-    public async Task AddHighScore_HighScore_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
+    public async Task AddHighScoreAsync_HighScore_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
     {
         // Arrange
         var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
-        _serviceMock.Setup(s => s.AddHighScore(It.IsAny<HighScore>()))
+        _serviceMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        var result = await _sut.AddHighScore(highScoreToAdd);
+        var result = await _sut.AddHighScoreAsync(highScoreToAdd);
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(ObjectResult));
@@ -317,56 +317,56 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
-    public async Task DeleteAllHighScores_HighScoreController_CallsService()
+    public async Task DeleteAllHighScoresAsync_HighScoreController_CallsService()
     {
         // Arrange
-        _serviceMock.Setup(s => s.DeleteAllHighScores())
+        _serviceMock.Setup(s => s.DeleteAllHighScoresAsync())
                     .Returns(Task.CompletedTask);
 
         // Act
-        await _sut.DeleteAllHighScores();
+        await _sut.DeleteAllHighScoresAsync();
 
         // Assert
-        _serviceMock.Verify(s => s.DeleteAllHighScores(), Times.Once);
+        _serviceMock.Verify(s => s.DeleteAllHighScoresAsync(), Times.Once);
     }
 
     [TestMethod]
-    public async Task DeleteAllHighScores_HighScoreController_ReturnsOk()
+    public async Task DeleteAllHighScoresAsync_HighScoreController_ReturnsOk()
     {
         // Arrange
-        _serviceMock.Setup(s => s.DeleteAllHighScores())
+        _serviceMock.Setup(s => s.DeleteAllHighScoresAsync())
                     .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _sut.DeleteAllHighScores();
+        var result = await _sut.DeleteAllHighScoresAsync();
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(OkResult));
     }
 
     [TestMethod]
-    public async Task DeleteAllHighScores_HighScoreController_ServiceThrowsException_CallsLogger()
+    public async Task DeleteAllHighScoresAsync_HighScoreController_ServiceThrowsException_CallsLogger()
     {
         // Arrange
-        _serviceMock.Setup(s => s.DeleteAllHighScores())
+        _serviceMock.Setup(s => s.DeleteAllHighScoresAsync())
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        await _sut.DeleteAllHighScores();
+        await _sut.DeleteAllHighScoresAsync();
 
         // Assert
         _loggerMock.Verify(LogLevel.Error, "Something went wrong!", Times.Once);
     }
 
     [TestMethod]
-    public async Task DeleteAllHighScores_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
+    public async Task DeleteAllHighScoresAsync_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
     {
         // Arrange
-        _serviceMock.Setup(s => s.DeleteAllHighScores())
+        _serviceMock.Setup(s => s.DeleteAllHighScoresAsync())
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        var result = await _sut.DeleteAllHighScores();
+        var result = await _sut.DeleteAllHighScoresAsync();
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(ObjectResult));
