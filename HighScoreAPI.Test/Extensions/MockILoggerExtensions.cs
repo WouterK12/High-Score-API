@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace HighScoreServer.Test.Extensions;
+namespace HighScoreAPI.Test.Extensions;
 
 // https://adamstorr.azurewebsites.net/blog/mocking-ilogger-with-moq
 internal static class MockILoggerExtensions

@@ -1,12 +1,12 @@
 ﻿using HighScoreAPI.DAL;
-using HighScoreServer.DAL.DataMappers;
-using HighScoreServer.Exceptions;
-using HighScoreServer.Models;
+using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.Exceptions;
+using HighScoreAPI.Models;
 using ProfanityFilter.Interfaces;
 using System.Text.RegularExpressions;
 using System;
 
-namespace HighScoreServer.Services;
+namespace HighScoreAPI.Services;
 
 public class HighScoreService : IHighScoreService
 {

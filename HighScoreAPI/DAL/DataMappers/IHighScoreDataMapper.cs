@@ -1,6 +1,6 @@
-﻿using HighScoreServer.Models;
+﻿using HighScoreAPI.Models;
 
-namespace HighScoreServer.DAL.DataMappers;
+namespace HighScoreAPI.DAL.DataMappers;
 
 public interface IHighScoreDataMapper
 {

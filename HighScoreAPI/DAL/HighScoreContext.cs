@@ -1,9 +1,9 @@
-﻿using HighScoreServer.DAL.Builders;
-using HighScoreServer.DAL.Mappings;
-using HighScoreServer.Models;
+﻿using HighScoreAPI.DAL.Builders;
+using HighScoreAPI.DAL.Mappings;
+using HighScoreAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HighScoreServer.DAL;
+namespace HighScoreAPI.DAL;
 
 public class HighScoreContext : DbContext
 {

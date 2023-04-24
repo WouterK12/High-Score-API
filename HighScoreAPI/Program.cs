@@ -1,8 +1,8 @@
 using HighScoreAPI.Middleware;
-using HighScoreServer.DAL;
-using HighScoreServer.DAL.DataMappers;
-using HighScoreServer.Extensions;
-using HighScoreServer.Services;
+using HighScoreAPI.DAL;
+using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.Extensions;
+using HighScoreAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using ProfanityFilter.Interfaces;
 

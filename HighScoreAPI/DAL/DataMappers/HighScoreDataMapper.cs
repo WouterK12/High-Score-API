@@ -1,7 +1,7 @@
-﻿using HighScoreServer.Models;
+﻿using HighScoreAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HighScoreServer.DAL.DataMappers;
+namespace HighScoreAPI.DAL.DataMappers;
 
 public class HighScoreDataMapper : IHighScoreDataMapper
 {

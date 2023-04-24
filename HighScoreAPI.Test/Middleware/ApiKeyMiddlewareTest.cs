@@ -8,7 +8,6 @@ namespace HighScoreAPI.Test.Middleware;
 [TestClass]
 public class ApiKeyMiddlewareTest
 {
-    private ApiKeyMiddleware _sut = null!;
     private Mock<IRequestMock> _requestMock = null!;
 
     [TestInitialize]
@@ -16,8 +15,7 @@ public class ApiKeyMiddlewareTest
     {
         _requestMock = new Mock<IRequestMock>(MockBehavior.Strict);
         _requestMock.Setup(r => r.Next(It.IsAny<HttpContext>()))
-                   .Returns(Task.CompletedTask);
-        _sut = new ApiKeyMiddleware(_requestMock.Object.Next);
+                    .Returns(Task.CompletedTask);
     }
 
     [TestMethod]
@@ -25,9 +23,12 @@ public class ApiKeyMiddlewareTest
     {
         // Arrange
         var context = new DefaultHttpContext();
+        var configuration = new ConfigurationBuilder().Build();
+
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
 
         // Act
-        await _sut.InvokeAsync(context);
+        await sut.InvokeAsync(context);
 
         // Assert
         Assert.AreEqual(StatusCodes.Status400BadRequest, context.Response.StatusCode);
@@ -40,18 +41,15 @@ public class ApiKeyMiddlewareTest
     {
         // Arrange
         var context = new DefaultHttpContext();
+        context.Request.Headers.Add(HeaderNames.XAPIKey, "invalid key");
         var myConfiguration = new Dictionary<string, string>() { { HeaderNames.XAPIKey, "correct key" } };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(myConfiguration)
             .Build();
-        var serviceProviderMock = new Mock<IServiceProvider>(MockBehavior.Strict);
-        serviceProviderMock.Setup(sp => sp.GetService(It.IsAny<Type>()))
-                           .Returns(configuration);
-        context.RequestServices = serviceProviderMock.Object;
-        context.Request.Headers.Add(HeaderNames.XAPIKey, "invalid key");
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
 
         // Act
-        await _sut.InvokeAsync(context);
+        await sut.InvokeAsync(context);
 
         // Assert
         Assert.AreEqual(StatusCodes.Status401Unauthorized, context.Response.StatusCode);
@@ -65,18 +63,15 @@ public class ApiKeyMiddlewareTest
         // Arrange
         var context = new DefaultHttpContext();
         string correctKey = "correct key";
+        context.Request.Headers.Add(HeaderNames.XAPIKey, correctKey);
         var myConfiguration = new Dictionary<string, string>() { { HeaderNames.XAPIKey, correctKey } };
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(myConfiguration)
             .Build();
-        var serviceProviderMock = new Mock<IServiceProvider>(MockBehavior.Strict);
-        serviceProviderMock.Setup(sp => sp.GetService(It.IsAny<Type>()))
-                           .Returns(configuration);
-        context.RequestServices = serviceProviderMock.Object;
-        context.Request.Headers.Add(HeaderNames.XAPIKey, correctKey);
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
 
         // Act
-        await _sut.InvokeAsync(context);
+        await sut.InvokeAsync(context);
 
         // Assert
         _requestMock.Verify(n => n.Next(context), Times.Once);

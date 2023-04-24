@@ -1,9 +1,9 @@
 ﻿using HighScoreAPI.Middleware;
-using HighScoreServer.DAL.Builders;
+using HighScoreAPI.DAL.Builders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
-namespace HighScoreServer.Extensions;
+namespace HighScoreAPI.Extensions;
 
 public static class ServiceCollectionExtensions
 {

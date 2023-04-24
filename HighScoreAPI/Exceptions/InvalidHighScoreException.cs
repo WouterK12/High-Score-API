@@ -1,4 +1,4 @@
-﻿namespace HighScoreServer.Exceptions;
+﻿namespace HighScoreAPI.Exceptions;
 
 public class InvalidHighScoreException : Exception
 {

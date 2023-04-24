@@ -1,6 +1,6 @@
-﻿using HighScoreServer.Models;
+﻿using HighScoreAPI.Models;
 
-namespace HighScoreServer.Services
+namespace HighScoreAPI.Services
 {
     public interface IHighScoreService
     {

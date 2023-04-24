@@ -1,6 +1,6 @@
-﻿using HighScoreServer.Exceptions;
+﻿using HighScoreAPI.Exceptions;
 
-namespace HighScoreServer.Test.Exceptions;
+namespace HighScoreAPI.Test.Exceptions;
 
 [TestClass]
 public class InvalidHighScoreExceptionTest

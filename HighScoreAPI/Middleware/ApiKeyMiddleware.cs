@@ -1,37 +1,50 @@
-﻿namespace HighScoreAPI.Middleware;
+﻿using Microsoft.Extensions.Configuration;
+
+namespace HighScoreAPI.Middleware;
 
 public class ApiKeyMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly string _apiKey;
 
     private const string ContentTypePlainText = "text/plain";
 
-    public ApiKeyMiddleware(RequestDelegate next)
+    public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
+        _apiKey = configuration.GetValue<string>(HeaderNames.XAPIKey);
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (!context.Request.Headers.TryGetValue(HeaderNames.XAPIKey, out var extractedApiKey))
+        bool hasApiKeyHeader = context.Request.Headers.TryGetValue(HeaderNames.XAPIKey, out var extractedApiKey);
+
+        if (!hasApiKeyHeader)
         {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = ContentTypePlainText;
-            await context.Response.WriteAsync(HeaderNames.XAPIKey + " is required");
+            await WriteBadRequest(context);
             return;
         }
 
-        var appSettings = context.RequestServices.GetRequiredService<IConfiguration>();
-        string apiKey = appSettings.GetValue<string>(HeaderNames.XAPIKey);
-
-        if (!apiKey.Equals(extractedApiKey))
+        if (!_apiKey.Equals(extractedApiKey))
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = ContentTypePlainText;
-            await context.Response.WriteAsync("Unauthorized");
+            await WriteUnauthorized(context);
             return;
         }
 
         await _next(context);
+    }
+
+    private async Task WriteBadRequest(HttpContext context)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        context.Response.ContentType = ContentTypePlainText;
+        await context.Response.WriteAsync(HeaderNames.XAPIKey + " is required");
+    }
+
+    private async Task WriteUnauthorized(HttpContext context)
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = ContentTypePlainText;
+        await context.Response.WriteAsync("Unauthorized");
     }
 }

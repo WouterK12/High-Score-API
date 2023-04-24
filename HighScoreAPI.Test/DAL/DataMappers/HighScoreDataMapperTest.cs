@@ -1,10 +1,10 @@
-﻿using HighScoreServer.DAL;
-using HighScoreServer.DAL.DataMappers;
-using HighScoreServer.Models;
+﻿using HighScoreAPI.DAL;
+using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.Models;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace HighScoreServer.Test.DAL.DataMappers;
+namespace HighScoreAPI.Test.DAL.DataMappers;
 
 [TestClass]
 public class HighScoreDataMapperTest

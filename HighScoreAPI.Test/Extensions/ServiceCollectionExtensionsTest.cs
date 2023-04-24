@@ -1,4 +1,4 @@
-﻿using HighScoreServer.Extensions;
+﻿using HighScoreAPI.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;

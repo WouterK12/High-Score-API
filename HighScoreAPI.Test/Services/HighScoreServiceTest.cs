@@ -1,11 +1,11 @@
-﻿using HighScoreServer.DAL.DataMappers;
-using HighScoreServer.Exceptions;
-using HighScoreServer.Models;
-using HighScoreServer.Services;
+﻿using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.Exceptions;
+using HighScoreAPI.Models;
+using HighScoreAPI.Services;
 using Moq;
 using ProfanityFilter.Interfaces;
 
-namespace HighScoreServer.Test.Services;
+namespace HighScoreAPI.Test.Services;
 
 [TestClass]
 public class HighScoreServiceTest

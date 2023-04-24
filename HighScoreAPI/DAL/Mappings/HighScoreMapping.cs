@@ -1,9 +1,9 @@
 ﻿using HighScoreAPI.DAL;
-using HighScoreServer.Models;
+using HighScoreAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HighScoreServer.DAL.Mappings;
+namespace HighScoreAPI.DAL.Mappings;
 
 public class HighScoreMapping : IEntityTypeConfiguration<HighScore>
 {

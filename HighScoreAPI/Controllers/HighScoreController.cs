@@ -1,9 +1,9 @@
-﻿using HighScoreServer.Exceptions;
-using HighScoreServer.Models;
-using HighScoreServer.Services;
+﻿using HighScoreAPI.Exceptions;
+using HighScoreAPI.Models;
+using HighScoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HighScoreServer.Controllers;
+namespace HighScoreAPI.Controllers;
 
 [Route("api/highscores")]
 [ApiController]

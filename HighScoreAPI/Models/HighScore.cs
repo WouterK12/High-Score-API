@@ -1,4 +1,4 @@
-﻿namespace HighScoreServer.Models;
+﻿namespace HighScoreAPI.Models;
 
 public class HighScore
 {

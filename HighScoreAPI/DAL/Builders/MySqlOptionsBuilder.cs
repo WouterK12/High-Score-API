@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace HighScoreServer.DAL.Builders;
+namespace HighScoreAPI.DAL.Builders;
 
 public static class MySqlOptionsBuilder
 {

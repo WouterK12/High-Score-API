@@ -1,14 +1,14 @@
 using Castle.Core.Logging;
-using HighScoreServer.Controllers;
-using HighScoreServer.Exceptions;
-using HighScoreServer.Models;
-using HighScoreServer.Services;
-using HighScoreServer.Test.Extensions;
+using HighScoreAPI.Controllers;
+using HighScoreAPI.Exceptions;
+using HighScoreAPI.Models;
+using HighScoreAPI.Services;
+using HighScoreAPI.Test.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace HighScoreServer.Test.Controllers;
+namespace HighScoreAPI.Test.Controllers;
 
 [TestClass]
 public class HighScoreControllerTest
