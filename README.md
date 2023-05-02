@@ -13,12 +13,13 @@ docker-compose up --build
 All endpoints require authentication using the `X-API-Key` header.  
 Make sure to change the default allowed key `"YOUR-SECRET-CLIENT-KEY"` in `appsettings.json`.
 
-| Method | Endpoint                            | Description                              |
-| ------ | ----------------------------------- | ---------------------------------------- |
-| GET    | `/api/highscores/top/{amount}`      | Get the top `amount` of highest scores   |
-| GET    | `/api/highscores/search/{username}` | Get the high score of user by `username` |
-| POST   | `/api/highscores`                   | Add a new high score                     |
-| DELETE | `/api/highscores`                   | Delete all high scores                   |
+| Method | Endpoint                            | Description                                      |
+| ------ | ----------------------------------- | ------------------------------------------------ |
+| GET    | `/api/highscores/top/{amount}`      | Get the top `amount` of highest scores           |
+| GET    | `/api/highscores/search/{username}` | Get the high score of user by `username`         |
+| POST   | `/api/highscores`                   | Add a new high score                             |
+| DELETE | `/api/highscores`                   | Delete all high scores                           |
+| DELETE | `/api/highscores/delete`            | Delete a specific high score (Same body as POST) |
 
 ### Adding a new high score
 

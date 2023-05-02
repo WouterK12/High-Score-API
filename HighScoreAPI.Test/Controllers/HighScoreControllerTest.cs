@@ -317,6 +317,74 @@ public class HighScoreControllerTest
     }
 
     [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreController_CallsService()
+    {
+        // Arrange
+        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
+        _serviceMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                    .Returns(Task.CompletedTask);
+
+        // Act
+        await _sut.DeleteHighScoreAsync(highScoreToDelete);
+
+        // Assert
+        _serviceMock.Verify(s => s.DeleteHighScoreAsync(It.Is<HighScore>(hs =>
+            hs.Username == "K03N" &&
+            hs.Score == 423)
+            ), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreController_ReturnsOk()
+    {
+        // Arrange
+        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
+        _serviceMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                    .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _sut.DeleteHighScoreAsync(highScoreToDelete);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(OkResult));
+    }
+
+    [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreController_ServiceThrowsHighScoreNotFoundException_ReturnsNotFound()
+    {
+        // Arrange
+        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
+        _serviceMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                    .ThrowsAsync(new HighScoreNotFoundException(highScoreToDelete));
+
+        // Act
+        var result = await _sut.DeleteHighScoreAsync(highScoreToDelete);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+        var notFoundObjectResult = result as NotFoundObjectResult;
+        Assert.AreEqual("High Score for user with username \"K03N\" and score \"423\" could not be found.", notFoundObjectResult.Value);
+    }
+
+    [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScore_HighScoreController_ServiceThrowsException_ReturnsStatusCode500()
+    {
+        // Arrange
+        var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
+        _serviceMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                    .ThrowsAsync(new Exception("Something went wrong!"));
+
+        // Act
+        var result = await _sut.DeleteHighScoreAsync(highScoreToAdd);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ObjectResult));
+        var objectResult = result as ObjectResult;
+        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.AreEqual("Oops! Something went wrong. Try again later.", objectResult.Value);
+    }
+
+    [TestMethod]
     public async Task DeleteAllHighScoresAsync_HighScoreController_CallsService()
     {
         // Arrange

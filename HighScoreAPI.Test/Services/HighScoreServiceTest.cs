@@ -308,6 +308,70 @@ public class HighScoreServiceTest
     }
 
     [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreService_CallsDataMapper()
+    {
+        // Arrange
+        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
+        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
+                       .ReturnsAsync(highScoreToDelete);
+        _dataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                       .Returns(Task.CompletedTask);
+
+        // Act
+        await _sut.DeleteHighScoreAsync(highScoreToDelete);
+
+        // Assert
+        _dataMapperMock.Verify(s => s.DeleteHighScoreAsync(It.Is<HighScore>(hs =>
+            hs.Username == "K03N" &&
+            hs.Score == 423)),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreService_DataMapperReturnsNull_ThrowsHighScoreNotFoundException()
+    {
+        // Arrange
+        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
+        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
+                       .ReturnsAsync(() => null!);
+        _dataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                       .Returns(Task.CompletedTask);
+
+        // Act
+
+        async Task Act()
+        {
+            await _sut.DeleteHighScoreAsync(highScoreToDelete);
+        }
+
+        // Assert
+        HighScoreNotFoundException ex = await Assert.ThrowsExceptionAsync<HighScoreNotFoundException>(Act);
+        Assert.AreEqual("High Score for user with username \"K03N\" and score \"423\" could not be found.", ex.Message);
+    }
+
+    [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreService_DataMapperReturnsDifferentScore_ThrowsHighScoreNotFoundException()
+    {
+        // Arrange
+        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
+        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
+                       .ReturnsAsync(new HighScore { Username = "K03N", Score = 422 });
+        _dataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
+                       .Returns(Task.CompletedTask);
+
+        // Act
+
+        async Task Act()
+        {
+            await _sut.DeleteHighScoreAsync(highScoreToDelete);
+        }
+
+        // Assert
+        HighScoreNotFoundException ex = await Assert.ThrowsExceptionAsync<HighScoreNotFoundException>(Act);
+        Assert.AreEqual("High Score for user with username \"K03N\" and score \"423\" could not be found.", ex.Message);
+    }
+
+    [TestMethod]
     public async Task DeleteAllHighScoresAsync_HighScoreService_CallsDataMapper()
     {
         // Arrange

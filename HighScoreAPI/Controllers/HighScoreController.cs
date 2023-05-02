@@ -70,9 +70,9 @@ public class HighScoreController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> AddHighScoreAsync(HighScore highScoreToAdd)
     {
@@ -94,8 +94,34 @@ public class HighScoreController : ControllerBase
         }
     }
 
+    [HttpDelete("delete")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteHighScoreAsync(HighScore highScoreToDelete)
+    {
+        try
+        {
+            await _service.DeleteHighScoreAsync(highScoreToDelete);
+
+            return Ok();
+        }
+        catch (HighScoreNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+
+            return StatusCode(500, "Oops! Something went wrong. Try again later.");
+        }
+    }
+
     [HttpDelete]
-    [ProducesResponseType(typeof(HighScore), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]

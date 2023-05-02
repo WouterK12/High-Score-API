@@ -170,6 +170,47 @@ public class HighScoreDataMapperTest
     }
 
     [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreDataMapper_DeletesHighScore()
+    {
+        // Arrange
+        var highScore = new HighScore() { Username = "K03N", Score = 423 };
+        using var context = new HighScoreContext(_options);
+        context.Add(highScore);
+        context.SaveChanges();
+
+        var highScoreToDelete = new HighScore() { Username = "K03N", Score = 423 };
+        var sut = new HighScoreDataMapper(_options);
+
+        // Act
+        await sut.DeleteHighScoreAsync(highScoreToDelete);
+
+        // Assert
+        using var assertContext = new HighScoreContext(_options);
+        Assert.AreEqual(0, assertContext.HighScores.Count());
+    }
+
+    [TestMethod]
+    public async Task DeleteHighScoreAsync_HighScoreNotInDb_HighScoreDataMapper_DoesNotDeleteHighScore()
+    {
+        // Arrange
+        var highScore = new HighScore() { Username = "K03N", Score = 423 };
+        using var context = new HighScoreContext(_options);
+        context.Add(highScore);
+        context.SaveChanges();
+
+        var highScoreToDelete = new HighScore() { Username = "K03N", Score = 422 };
+        var sut = new HighScoreDataMapper(_options);
+
+        // Act
+        await sut.DeleteHighScoreAsync(highScoreToDelete);
+
+        // Assert
+        using var assertContext = new HighScoreContext(_options);
+        Assert.AreEqual(1, assertContext.HighScores.Count());
+        Assert.IsTrue(assertContext.HighScores.Any(hs => hs.Username == "K03N" && hs.Score == 423));
+    }
+
+    [TestMethod]
     public async Task DeleteAllHighScoresAsync_HighScoreDataMapper_DeletesAllHighScores()
     {
         // Arrange

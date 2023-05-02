@@ -54,6 +54,16 @@ public class HighScoreService : IHighScoreService
         return _dataMapper.AddHighScoreAsync(highScoreToAdd);
     }
 
+    public async Task DeleteHighScoreAsync(HighScore highScoreToDelete)
+    {
+        var result = await _dataMapper.GetHighScoreByUsernameAsync(highScoreToDelete.Username);
+
+        if (result is null || result.Score != highScoreToDelete.Score)
+            throw new HighScoreNotFoundException(highScoreToDelete);
+
+        await _dataMapper.DeleteHighScoreAsync(highScoreToDelete);
+    }
+
     public Task DeleteAllHighScoresAsync()
     {
         return _dataMapper.DeleteAllHighScoresAsync();

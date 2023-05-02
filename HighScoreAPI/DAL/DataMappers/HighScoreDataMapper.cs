@@ -53,6 +53,22 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         await context.SaveChangesAsync();
     }
 
+    public async Task DeleteHighScoreAsync(HighScore highScoreToDelete)
+    {
+        using var context = new HighScoreContext(_options);
+
+        var existingHighScore = await context.HighScores
+            .FirstOrDefaultAsync(hs => hs.Username == highScoreToDelete.Username &&
+                                       hs.Score == highScoreToDelete.Score);
+
+        if (existingHighScore is null)
+            return;
+
+        context.Remove(existingHighScore);
+
+        await context.SaveChangesAsync();
+    }
+
     public async Task DeleteAllHighScoresAsync()
     {
         using var context = new HighScoreContext(_options);
