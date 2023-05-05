@@ -4,25 +4,29 @@ services:
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=Secret_101
-    ports:
-      - '3306:3306'
     networks:
         - high-score-api-network
+    volumes:
+      - high-score-api-datavolume:/var/lib/mysql
   high-score-api:
       build: 
         context: ./
         dockerfile: ./HighScoreAPI/Dockerfile.development
+      restart: always
       depends_on:
         - mysql
+      ports:
+        - '127.0.0.1:5205:80'
       environment:
         - MYSQL_HOSTNAME=mysql
         - MYSQL_USER=root
         - MYSQL_PASSWORD=Secret_101
         - MYSQL_DATABASE_NAME=HighScoreAPIDev
-      ports:
-      - '80:80'
       networks:
         - high-score-api-network
+
+volumes:
+  high-score-api-datavolume:
 
 networks:
  high-score-api-network:

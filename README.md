@@ -8,10 +8,13 @@ A simple REST API used to keep track of high scores, made in ASP.NET Core 6.0
 docker-compose up --build
 ```
 
+By default the API starts on `127.0.0.1:5205`.  
+You can change this in [`docker-compose.yml`](./docker-compose.yml).
+
 ## Endpoints
 
 All endpoints require authentication using the `X-API-Key` header.  
-Make sure to change the default allowed key `"YOUR-SECRET-CLIENT-KEY"` in `appsettings.json`.
+Make sure to change the default allowed key `"YOUR-SECRET-CLIENT-KEY"` in [`appsettings.json`](./HighScoreAPI/appsettings.json).
 
 | Method | Endpoint                            | Description                                      |
 | ------ | ----------------------------------- | ------------------------------------------------ |
@@ -38,4 +41,4 @@ Example `JSON`:
 ### Deleting all high scores
 
 The `DELETE` endpoint requires authentication using the `X-API-Key` header.  
-The default allowed key `"YOUR-SECRET-ADMIN-KEY"` is different from the other endpoints and should be changed in `appsettings.json`.
+The default allowed key `"YOUR-SECRET-ADMIN-KEY"` is different from the other endpoints and should be changed in [`appsettings.json`](./HighScoreAPI/appsettings.json).
