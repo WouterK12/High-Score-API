@@ -1,49 +1,64 @@
-﻿using HighScoreAPI.Models;
+﻿using HighScoreAPI.DTOs;
+using HighScoreAPI.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HighScoreAPI.DAL.DataMappers;
 
 public class HighScoreDataMapper : IHighScoreDataMapper
 {
-    private readonly DbContextOptions<HighScoreContext> _options;
+    private readonly DbContextOptions<DatabaseContext> _options;
 
-    public HighScoreDataMapper(DbContextOptions<HighScoreContext> options)
+    public HighScoreDataMapper(DbContextOptions<DatabaseContext> options)
     {
         _options = options;
     }
 
-    public async Task<IEnumerable<HighScore>> GetTopAsync(int amount)
+    public async Task<IEnumerable<HighScoreDTO>> GetTopAsync(string projectName, int amount)
     {
-        using var context = new HighScoreContext(_options);
+        using var context = new DatabaseContext(_options);
 
         var result = await context.HighScores
+            .Include(hs => hs.Project)
+            .Where(hs => hs.Project.Name == projectName)
             .OrderByDescending(hs => hs.Score)
             .Take(amount)
+            .Select(hs => new HighScoreDTO(hs.Username, hs.Score))
             .ToListAsync();
 
         return result;
     }
 
-    public async Task<HighScore> GetHighScoreByUsernameAsync(string username)
+    public async Task<HighScoreDTO?> GetHighScoreByUsernameAsync(string projectName, string username)
     {
-        using var context = new HighScoreContext(_options);
+        using var context = new DatabaseContext(_options);
 
         var result = await context.HighScores
-            .FirstOrDefaultAsync(hs => hs.Username == username);
+            .Include(hs => hs.Project)
+            .Where(hs => hs.Project.Name == projectName)
+            .SingleOrDefaultAsync(hs => hs.Username == username);
 
-        return result!;
+        if (result is null)
+            return null;
+
+        return result.ToDTO();
     }
 
-    public async Task AddHighScoreAsync(HighScore highScoreToAdd)
+    public async Task AddHighScoreAsync(string projectName, HighScoreDTO highScoreToAdd)
     {
-        using var context = new HighScoreContext(_options);
+        using var context = new DatabaseContext(_options);
 
-        var existingHighScore = await context.HighScores
-            .FirstOrDefaultAsync(hs => hs.Username == highScoreToAdd.Username);
+        var existingProject = await context.Projects
+            .Include(p => p.HighScores)
+            .SingleAsync(p => p.Name == projectName);
+
+        var existingHighScore = existingProject.HighScores
+            .FirstOrDefault(hs => hs.Username == highScoreToAdd.Username);
 
         if (existingHighScore is null)
         {
-            await context.HighScores.AddAsync(highScoreToAdd);
+            var toAdd = highScoreToAdd.ToHighScore();
+            toAdd.Project = existingProject;
+            await context.AddAsync(toAdd);
         }
         else if (highScoreToAdd.Score > existingHighScore.Score)
         {
@@ -53,11 +68,13 @@ public class HighScoreDataMapper : IHighScoreDataMapper
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteHighScoreAsync(HighScore highScoreToDelete)
+    public async Task DeleteHighScoreAsync(string projectName, HighScoreDTO highScoreToDelete)
     {
-        using var context = new HighScoreContext(_options);
+        using var context = new DatabaseContext(_options);
 
         var existingHighScore = await context.HighScores
+            .Include(hs => hs.Project)
+            .Where(hs => hs.Project.Name == projectName)
             .FirstOrDefaultAsync(hs => hs.Username == highScoreToDelete.Username &&
                                        hs.Score == highScoreToDelete.Score);
 
@@ -65,15 +82,6 @@ public class HighScoreDataMapper : IHighScoreDataMapper
             return;
 
         context.Remove(existingHighScore);
-
-        await context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAllHighScoresAsync()
-    {
-        using var context = new HighScoreContext(_options);
-
-        context.RemoveRange(context.HighScores);
 
         await context.SaveChangesAsync();
     }

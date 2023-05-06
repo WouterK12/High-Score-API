@@ -1,5 +1,5 @@
-﻿using HighScoreAPI.Exceptions;
-using HighScoreAPI.Models;
+﻿using HighScoreAPI.DTOs;
+using HighScoreAPI.Exceptions;
 
 namespace HighScoreAPI.Test.Exceptions;
 
@@ -23,10 +23,10 @@ public class HighScoreNotFoundExceptionTest
     public void Constructor_HighScore_HighScoreNotFoundException_ReturnsExpected()
     {
         // Arrange
-        HighScore highScore = new() { Username = "K03N", Score = 439 };
+        HighScoreDTO highScoreDTO = new("K03N", 439);
 
         // Act
-        var result = new HighScoreNotFoundException(highScore);
+        var result = new HighScoreNotFoundException(highScoreDTO);
 
         // Assert
         Assert.AreEqual("High Score for user with username \"K03N\" and score \"439\" could not be found.", result.Message);

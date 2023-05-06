@@ -1,12 +1,11 @@
-﻿using HighScoreAPI.Models;
+﻿using HighScoreAPI.DTOs;
 
 namespace HighScoreAPI.DAL.DataMappers;
 
 public interface IHighScoreDataMapper
 {
-    Task<IEnumerable<HighScore>> GetTopAsync(int amount);
-    Task<HighScore> GetHighScoreByUsernameAsync(string username);
-    Task AddHighScoreAsync(HighScore highScoreToAdd);
-    Task DeleteHighScoreAsync(HighScore highScoreToDelete);
-    Task DeleteAllHighScoresAsync();
+    Task<IEnumerable<HighScoreDTO>> GetTopAsync(string projectName, int amount);
+    Task<HighScoreDTO?> GetHighScoreByUsernameAsync(string projectName, string username);
+    Task AddHighScoreAsync(string projectName, HighScoreDTO highScoreToAdd);
+    Task DeleteHighScoreAsync(string projectName, HighScoreDTO highScoreToDelete);
 }

@@ -1,4 +1,5 @@
 ﻿using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.DTOs;
 using HighScoreAPI.Exceptions;
 using HighScoreAPI.Models;
 using HighScoreAPI.Services;
@@ -12,36 +13,39 @@ public class HighScoreServiceTest
 {
     private HighScoreService _sut = null!;
 
-    private Mock<IHighScoreDataMapper> _dataMapperMock = null!;
+    private Mock<IHighScoreDataMapper> _highScoreDataMapperMock = null!;
+    private Mock<IProjectDataMapper> _projectDataMapperMock = null!;
     private Mock<IProfanityFilter> _profanityFilterMock = null!;
 
     [TestInitialize]
     public void TestInitialize()
     {
-        _dataMapperMock = new Mock<IHighScoreDataMapper>(MockBehavior.Strict);
+        _highScoreDataMapperMock = new Mock<IHighScoreDataMapper>(MockBehavior.Strict);
+        _projectDataMapperMock = new Mock<IProjectDataMapper>(MockBehavior.Strict);
         _profanityFilterMock = new Mock<IProfanityFilter>(MockBehavior.Strict);
 
-        _sut = new HighScoreService(_dataMapperMock.Object, _profanityFilterMock.Object);
+        _sut = new HighScoreService(_highScoreDataMapperMock.Object, _projectDataMapperMock.Object, _profanityFilterMock.Object);
     }
 
     [TestMethod]
-    public async Task GetTopAsync_10_HighScoreService_CallsDataMapper()
+    public async Task GetTopAsync_HighScoreService_CallsDataMapper()
     {
         // Arrange
+        string projectName = "Smuggling-Pirates";
         int amount = 10;
-        var highScores = new List<HighScore>()
+        var highScores = new List<HighScoreDTO>()
         {
-            new() { Username = "K03N", Score = 423 },
-            new() { Username = "Your Partner In Science", Score = 34 }
+            new("K03N", 423),
+            new("Your Partner In Science", 34)
         };
-        _dataMapperMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
-                       .ReturnsAsync(highScores);
+        _highScoreDataMapperMock.Setup(s => s.GetTopAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(highScores);
 
         // Act
-        var result = await _sut.GetTopAsync(amount);
+        var result = await _sut.GetTopAsync(projectName, amount);
 
         // Assert
-        _dataMapperMock.Verify(dm => dm.GetTopAsync(10), Times.Once);
+        _highScoreDataMapperMock.Verify(dm => dm.GetTopAsync("Smuggling-Pirates", 10), Times.Once);
         Assert.AreEqual(2, result.Count());
         Assert.IsTrue(result.Any(hs => hs.Username == "K03N" && hs.Score == 423));
         Assert.IsTrue(result.Any(hs => hs.Username == "Your Partner In Science" && hs.Score == 34));
@@ -52,10 +56,13 @@ public class HighScoreServiceTest
     [DataRow(0)]
     public async Task GetTopAsync_LessOrEqual0_HighScoreService_ThrowsArgumentOutOfRangeException(int amount)
     {
+        // Arrange
+        string projectName = "Smuggling-Pirates";
+
         // Act
-        async Task<IEnumerable<HighScore>> Act()
+        async Task<IEnumerable<HighScoreDTO>> Act()
         {
-            return await _sut.GetTopAsync(amount);
+            return await _sut.GetTopAsync(projectName, amount);
         }
 
         // Assert
@@ -67,14 +74,15 @@ public class HighScoreServiceTest
     public async Task GetTopAsync_1_HighScoreService_DoesNotThrowArgumentOutOfRangeException()
     {
         // Arrange
+        string projectName = "Smuggling-Pirates";
         int amount = 1;
-        _dataMapperMock.Setup(s => s.GetTopAsync(It.IsAny<int>()))
-                       .ReturnsAsync(It.IsAny<IEnumerable<HighScore>>());
+        _highScoreDataMapperMock.Setup(s => s.GetTopAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(It.IsAny<IEnumerable<HighScoreDTO>>());
 
         try
         {
             // Act
-            await _sut.GetTopAsync(amount);
+            await _sut.GetTopAsync(projectName, amount);
         }
         catch (Exception)
         {
@@ -88,16 +96,17 @@ public class HighScoreServiceTest
     public async Task GetHighScoreByUsernameAsync_HighScoreService_CallsDataMapper()
     {
         // Arrange
-        var username = "K03N";
-        var highScore = new HighScore() { Username = username, Score = 423 };
-        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
-                       .ReturnsAsync(highScore);
+        string projectName = "Smuggling-Pirates";
+        string username = "K03N";
+        var highScore = new HighScoreDTO(username, 423);
+        _highScoreDataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(highScore);
 
         // Act
-        var result = await _sut.GetHighScoreByUsernameAsync(username);
+        var result = await _sut.GetHighScoreByUsernameAsync(projectName, username);
 
         // Assert
-        _dataMapperMock.Verify(dm => dm.GetHighScoreByUsernameAsync("K03N"), Times.Once);
+        _highScoreDataMapperMock.Verify(dm => dm.GetHighScoreByUsernameAsync("Smuggling-Pirates", "K03N"), Times.Once);
         Assert.AreEqual("K03N", result.Username);
         Assert.AreEqual(423, result.Score);
     }
@@ -106,14 +115,15 @@ public class HighScoreServiceTest
     public async Task GetHighScoreByUsernameAsync_HighScoreService_DataMapperReturnsNull_ThrowsHighScoreNotFoundException()
     {
         // Arrange
-        var username = "K03N";
-        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
-                       .ReturnsAsync(() => null!);
+        string projectName = "Smuggling-Pirates";
+        string username = "K03N";
+        _highScoreDataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => null!);
 
         // Act
-        async Task<HighScore> Act()
+        async Task<HighScoreDTO> Act()
         {
-            return await _sut.GetHighScoreByUsernameAsync(username);
+            return await _sut.GetHighScoreByUsernameAsync(projectName, username);
         }
 
         // Assert
@@ -127,17 +137,18 @@ public class HighScoreServiceTest
     public async Task AddHighScoreAsync_Score0OrLess_HighScoreService_ThrowsInvalidHighScoreException(long score)
     {
         // Arrange
-        var username = "K03N";
-        var highScoreToAdd = new HighScore { Username = username, Score = score };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        string username = "K03N";
+        var highScoreToAdd = new HighScoreDTO(username, score);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(username);
+            .Returns(username);
 
         // Act
         async Task Act()
         {
-            await _sut.AddHighScoreAsync(highScoreToAdd);
+            await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
         }
 
         // Assert
@@ -149,17 +160,21 @@ public class HighScoreServiceTest
     public async Task AddHighScoreAsync_Score1_HighScoreService_DoesNotThrowException()
     {
         // Arrange
-        var username = "K03N";
-        var highScoreToAdd = new HighScore { Username = username, Score = 1 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        string username = "K03N";
+        var project = new Project() { Name = projectName };
+        var highScoreToAdd = new HighScoreDTO(username, 1);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
+        _projectDataMapperMock.Setup(s => s.GetProjectByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(project);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(username);
+            .Returns(username);
 
         try
         {
             // Act
-            await _sut.AddHighScoreAsync(highScoreToAdd);
+            await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
         }
         catch (Exception)
         {
@@ -174,40 +189,45 @@ public class HighScoreServiceTest
     [DataRow("")]
     [DataRow(" ")]
     [DataRow("  ")]
-    [DataRow("LongUsernameWithTotalLength31!!")]
-    public async Task AddHighScoreAsync_UsernameNullOrWhiteSpaceOrLongerThan30_HighScoreService_ThrowsInvalidHighScoreException(string username)
+    [DataRow("WowAnExtremelyMegaSuperLongUsernameWithTotalLengthOf65Characters!")]
+    public async Task AddHighScoreAsync_UsernameNullOrWhiteSpaceOrLongerThan64_HighScoreService_ThrowsInvalidHighScoreException(string username)
     {
         // Arrange
-        var highScoreToAdd = new HighScore { Username = username, Score = 423 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var highScoreToAdd = new HighScoreDTO(username, 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
 
         // Act
         async Task Act()
         {
-            await _sut.AddHighScoreAsync(highScoreToAdd);
+            await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
         }
 
         // Assert
         InvalidHighScoreException ex = await Assert.ThrowsExceptionAsync<InvalidHighScoreException>(Act);
-        Assert.AreEqual("Your Username must be between 1 and 30 characters!", ex.Message);
+        Assert.AreEqual("Your Username must be between 1 and 64 characters!", ex.Message);
     }
 
     [TestMethod]
-    public async Task AddHighScoreAsync_UsernameLength30_HighScoreService_DoesNotThrowException()
+    public async Task AddHighScoreAsync_UsernameLength64_HighScoreService_DoesNotThrowException()
     {
         // Arrange
-        var usernameWithLength30 = "LongUsernameWithTotalLength30!";
-        var highScoreToAdd = new HighScore { Username = usernameWithLength30, Score = 423 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var usernameWithLength64 = "OhAnExtremelyMegaSuperLongUsernameWithTotalLengthOf64Characters!";
+        var project = new Project() { Name = projectName };
+        var highScoreToAdd = new HighScoreDTO(usernameWithLength64, 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
+        _projectDataMapperMock.Setup(s => s.GetProjectByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(project);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(usernameWithLength30);
+            .Returns(usernameWithLength64);
 
         try
         {
             // Act
-            await _sut.AddHighScoreAsync(highScoreToAdd);
+            await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
         }
         catch (Exception)
         {
@@ -221,15 +241,19 @@ public class HighScoreServiceTest
     public async Task AddHighScoreAsync_CallsProfanityFilter()
     {
         // Arrange
-        var username = "K03N";
-        var highScoreToAdd = new HighScore { Username = username, Score = 423 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        string username = "K03N";
+        var project = new Project() { Name = projectName };
+        var highScoreToAdd = new HighScoreDTO(username, 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
+        _projectDataMapperMock.Setup(s => s.GetProjectByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(project);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(username);
+            .Returns(username);
 
         // Act
-        await _sut.AddHighScoreAsync(highScoreToAdd);
+        await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
 
         // Assert
         _profanityFilterMock.Verify(pf => pf.CensorString(username, ' '), Times.Once);
@@ -242,21 +266,22 @@ public class HighScoreServiceTest
     public async Task AddHighScoreAsync_ProfanityFilterReturnsWhiteSpaces_HighScoreService_ThrowsInvalidHighScoreException(string profanityFilterResult)
     {
         // Arrange
-        var highScoreToAdd = new HighScore { Username = "K03N", Score = 423 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var highScoreToAdd = new HighScoreDTO("K03N", 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(profanityFilterResult);
+            .Returns(profanityFilterResult);
 
         // Act
         async Task Act()
         {
-            await _sut.AddHighScoreAsync(highScoreToAdd);
+            await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
         }
 
         // Assert
         InvalidHighScoreException ex = await Assert.ThrowsExceptionAsync<InvalidHighScoreException>(Act);
-        Assert.AreEqual("Your Username must be between 1 and 30 characters!", ex.Message);
+        Assert.AreEqual("Your Username must be between 1 and 64 characters!", ex.Message);
     }
 
     [DataTestMethod]
@@ -270,40 +295,73 @@ public class HighScoreServiceTest
     public async Task AddHighScoreAsync_ProfanityFilterReturnsUsernameWithWhiteSpaces_HighScoreService_CallsDataMapper(string filteredUsername, string expected)
     {
         // Arrange
-        var highScoreToAdd = new HighScore { Username = filteredUsername, Score = 423 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var project = new Project() { Name = projectName };
+        var highScoreToAdd = new HighScoreDTO(filteredUsername, 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
+        _projectDataMapperMock.Setup(s => s.GetProjectByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(project);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(filteredUsername);
+            .Returns(filteredUsername);
 
         // Act
-        await _sut.AddHighScoreAsync(highScoreToAdd);
+        await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
 
         // Assert
-        _dataMapperMock.Verify(s => s.AddHighScoreAsync(It.Is<HighScore>(hs =>
-            hs.Username == expected &&
-            hs.Score == 423)
+        _highScoreDataMapperMock.Verify(s => s.AddHighScoreAsync(
+            "Smuggling-Pirates",
+            It.Is<HighScoreDTO>(hs =>
+                hs.Username == expected &&
+                hs.Score == 423)
             ), Times.Once);
+    }
+
+    public async Task AddHighScoreAsync_ProjectDataMapperReturnsNull_HighScoreService_ThrowsProjectNotFoundException()
+    {
+        // Arrange
+        string projectName = "Smuggling-Pirates";
+        var highScoreToAdd = new HighScoreDTO("K03N", 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
+        _projectDataMapperMock.Setup(s => s.GetProjectByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(() => null!);
+
+        // Act
+        async Task Act()
+        {
+            await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
+        }
+
+        // Assert
+        ProjectNotFoundException ex = await Assert.ThrowsExceptionAsync<ProjectNotFoundException>(Act);
+        Assert.AreEqual("Project with name \"Smuggling-Pirates\" could not be found.", ex.Message);
     }
 
     [TestMethod]
     public async Task AddHighScoreAsync_ValidHighScore_HighScoreService_CallsDataMapper()
     {
         // Arrange
-        var username = "K03N";
-        var highScoreToAdd = new HighScore { Username = username, Score = 423 };
-        _dataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        string username = "K03N";
+        var project = new Project() { Name = projectName };
+        var highScoreToAdd = new HighScoreDTO(username, 423);
+        _highScoreDataMapperMock.Setup(s => s.AddHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
+        _projectDataMapperMock.Setup(s => s.GetProjectByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(project);
         _profanityFilterMock.Setup(pf => pf.CensorString(It.IsAny<string>(), It.IsAny<char>()))
-                            .Returns(username);
+            .Returns(username);
 
         // Act
-        await _sut.AddHighScoreAsync(highScoreToAdd);
+        await _sut.AddHighScoreAsync(projectName, highScoreToAdd);
 
         // Assert
-        _dataMapperMock.Verify(s => s.AddHighScoreAsync(It.Is<HighScore>(hs =>
-            hs.Username == "K03N" &&
-            hs.Score == 423)
+        _highScoreDataMapperMock.Verify(s => s.AddHighScoreAsync(
+            "Smuggling-Pirates",
+            It.Is<HighScoreDTO>(hs =>
+                hs.Username == "K03N" &&
+                hs.Score == 423)
             ), Times.Once);
     }
 
@@ -311,19 +369,22 @@ public class HighScoreServiceTest
     public async Task DeleteHighScoreAsync_HighScoreService_CallsDataMapper()
     {
         // Arrange
-        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
-        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
-                       .ReturnsAsync(highScoreToDelete);
-        _dataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var highScoreToDelete = new HighScoreDTO("K03N", 423);
+        _highScoreDataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(highScoreToDelete);
+        _highScoreDataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
 
         // Act
-        await _sut.DeleteHighScoreAsync(highScoreToDelete);
+        await _sut.DeleteHighScoreAsync(projectName, highScoreToDelete);
 
         // Assert
-        _dataMapperMock.Verify(s => s.DeleteHighScoreAsync(It.Is<HighScore>(hs =>
-            hs.Username == "K03N" &&
-            hs.Score == 423)),
+        _highScoreDataMapperMock.Verify(s => s.DeleteHighScoreAsync(
+            "Smuggling-Pirates",
+            It.Is<HighScoreDTO>(hs =>
+                hs.Username == "K03N" &&
+                hs.Score == 423)),
             Times.Once);
     }
 
@@ -331,17 +392,18 @@ public class HighScoreServiceTest
     public async Task DeleteHighScoreAsync_HighScoreService_DataMapperReturnsNull_ThrowsHighScoreNotFoundException()
     {
         // Arrange
-        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
-        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
-                       .ReturnsAsync(() => null!);
-        _dataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var highScoreToDelete = new HighScoreDTO("K03N", 423);
+        _highScoreDataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(() => null!);
+        _highScoreDataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
 
         // Act
 
         async Task Act()
         {
-            await _sut.DeleteHighScoreAsync(highScoreToDelete);
+            await _sut.DeleteHighScoreAsync(projectName, highScoreToDelete);
         }
 
         // Assert
@@ -353,35 +415,22 @@ public class HighScoreServiceTest
     public async Task DeleteHighScoreAsync_HighScoreService_DataMapperReturnsDifferentScore_ThrowsHighScoreNotFoundException()
     {
         // Arrange
-        var highScoreToDelete = new HighScore { Username = "K03N", Score = 423 };
-        _dataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>()))
-                       .ReturnsAsync(new HighScore { Username = "K03N", Score = 422 });
-        _dataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<HighScore>()))
-                       .Returns(Task.CompletedTask);
+        string projectName = "Smuggling-Pirates";
+        var highScoreToDelete = new HighScoreDTO("K03N", 423);
+        _highScoreDataMapperMock.Setup(s => s.GetHighScoreByUsernameAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new HighScoreDTO("K03N", 422));
+        _highScoreDataMapperMock.Setup(s => s.DeleteHighScoreAsync(It.IsAny<string>(), It.IsAny<HighScoreDTO>()))
+            .Returns(Task.CompletedTask);
 
         // Act
 
         async Task Act()
         {
-            await _sut.DeleteHighScoreAsync(highScoreToDelete);
+            await _sut.DeleteHighScoreAsync(projectName, highScoreToDelete);
         }
 
         // Assert
         HighScoreNotFoundException ex = await Assert.ThrowsExceptionAsync<HighScoreNotFoundException>(Act);
         Assert.AreEqual("High Score for user with username \"K03N\" and score \"423\" could not be found.", ex.Message);
-    }
-
-    [TestMethod]
-    public async Task DeleteAllHighScoresAsync_HighScoreService_CallsDataMapper()
-    {
-        // Arrange
-        _dataMapperMock.Setup(s => s.DeleteAllHighScoresAsync())
-                       .Returns(Task.CompletedTask);
-
-        // Act
-        await _sut.DeleteAllHighScoresAsync();
-
-        // Assert
-        _dataMapperMock.Verify(s => s.DeleteAllHighScoresAsync(), Times.Once);
     }
 }

@@ -14,19 +14,20 @@ You can change this in [`docker-compose.yml`](./docker-compose.yml).
 ## Endpoints
 
 All endpoints require authentication using the `X-API-Key` header.  
-Make sure to change the default allowed key `"YOUR-SECRET-CLIENT-KEY"` in [`appsettings.json`](./HighScoreAPI/appsettings.json).
+Make sure to change the default allowed client and admin keys in [`appsettings.json`](./HighScoreAPI/appsettings.json).
 
-| Method | Endpoint                            | Description                                      |
-| ------ | ----------------------------------- | ------------------------------------------------ |
-| GET    | `/api/highscores/top/{amount}`      | Get the top `amount` of highest scores           |
-| GET    | `/api/highscores/search/{username}` | Get the high score of user by `username`         |
-| POST   | `/api/highscores`                   | Add a new high score                             |
-| DELETE | `/api/highscores`                   | Delete all high scores                           |
-| DELETE | `/api/highscores/delete`            | Delete a specific high score (Same body as POST) |
+### **/api/highscores**
 
-### Adding a new high score
+| Method | Endpoint                           | Description                              | Required `X-API-Key` |
+| ------ | ---------------------------------- | ---------------------------------------- | -------------------- |
+| GET    | `/{projectName}/top/{amount}`      | Get the top `amount` of highest scores   | Client               |
+| GET    | `/{projectName}/search/{username}` | Get the high score of user by `username` | Client               |
+| POST   | `/{projectName}`                   | Add a new high score                     | Client               |
+| DELETE | `/{projectName}`                   | Delete a high score (Same body as POST)  | Admin                |
 
-The `username` must be between `1` and `30` characters. Detected profanity will be removed from the name.  
+**Adding a new high score**
+
+The `username` must be between `1` and `64` characters. Detected profanity will be removed from the name.  
 The `score` must be `1` or higher.
 
 Example `JSON`:
@@ -38,7 +39,22 @@ Example `JSON`:
 }
 ```
 
-### Deleting all high scores
+### **/api/projects**
 
-The `DELETE` endpoint requires authentication using the `X-API-Key` header.  
-The default allowed key `"YOUR-SECRET-ADMIN-KEY"` is different from the other endpoints and should be changed in [`appsettings.json`](./HighScoreAPI/appsettings.json).
+| Method | Endpoint                | Description                                                   | Required `X-API-Key` |
+| ------ | ----------------------- | ------------------------------------------------------------- | -------------------- |
+| GET    | `/search/{projectName}` | Get a project by `projectName`                                | Admin                |
+| POST   | `/`                     | Add a new project                                             | Admin                |
+| DELETE | `/{projectName}`        | Delete a project with all of its high scores by `projectName` | Admin                |
+
+**Adding a new project**
+
+The `name` must be between `1` and `64` characters. Whitespaces will be replaced by dashes.
+
+Example `JSON`:
+
+```json
+{
+  "name": "My-Game"
+}
+```

@@ -1,11 +1,13 @@
-﻿using HighScoreAPI.Exceptions;
-using HighScoreAPI.Models;
+﻿using HighScoreAPI.Attributes;
+using HighScoreAPI.DTOs;
+using HighScoreAPI.Exceptions;
+using HighScoreAPI.Properties;
 using HighScoreAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HighScoreAPI.Controllers;
 
-[Route("api/highscores")]
+[Route("api/highscores/{projectName}")]
 [ApiController]
 public class HighScoreController : ControllerBase
 {
@@ -19,15 +21,15 @@ public class HighScoreController : ControllerBase
     }
 
     [HttpGet("top/{amount}")]
-    [ProducesResponseType(typeof(IEnumerable<HighScore>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<HighScoreDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<HighScore>>> GetTopAsync(int amount = 10)
+    public async Task<ActionResult<IEnumerable<HighScoreDTO>>> GetTopAsync(string projectName, int amount = 10)
     {
         try
         {
-            var result = await _service.GetTopAsync(amount);
+            var result = await _service.GetTopAsync(projectName, amount);
 
             return Ok(result);
         }
@@ -39,21 +41,21 @@ public class HighScoreController : ControllerBase
         {
             _logger.LogError(ex, ex.Message);
 
-            return StatusCode(500, "Oops! Something went wrong. Try again later.");
+            return StatusCode(500, Constants.SomethingWentWrongMessage);
         }
     }
 
     [HttpGet("search/{username}")]
-    [ProducesResponseType(typeof(HighScore), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(HighScoreDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<HighScore>> GetHighScoreByUsernameAsync(string username)
+    public async Task<ActionResult<HighScoreDTO>> GetHighScoreByUsernameAsync(string projectName, string username)
     {
         try
         {
-            var result = await _service.GetHighScoreByUsernameAsync(username);
+            var result = await _service.GetHighScoreByUsernameAsync(projectName, username);
 
             return Ok(result);
         }
@@ -65,20 +67,20 @@ public class HighScoreController : ControllerBase
         {
             _logger.LogError(ex, ex.Message);
 
-            return StatusCode(500, "Oops! Something went wrong. Try again later.");
+            return StatusCode(500, Constants.SomethingWentWrongMessage);
         }
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(HighScoreDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> AddHighScoreAsync(HighScore highScoreToAdd)
+    public async Task<ActionResult> AddHighScoreAsync(string projectName, HighScoreDTO highScoreToAdd)
     {
         try
         {
-            await _service.AddHighScoreAsync(highScoreToAdd);
+            await _service.AddHighScoreAsync(projectName, highScoreToAdd);
 
             return Created($"/api/highscores/search/{highScoreToAdd.Username}", highScoreToAdd);
         }
@@ -86,25 +88,30 @@ public class HighScoreController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+        catch (ProjectNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
 
-            return StatusCode(500, "Oops! Something went wrong. Try again later.");
+            return StatusCode(500, Constants.SomethingWentWrongMessage);
         }
     }
 
-    [HttpDelete("delete")]
+    [RequiresAdminKey]
+    [HttpDelete]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteHighScoreAsync(HighScore highScoreToDelete)
+    public async Task<ActionResult> DeleteHighScoreAsync(string projectName, HighScoreDTO highScoreToDelete)
     {
         try
         {
-            await _service.DeleteHighScoreAsync(highScoreToDelete);
+            await _service.DeleteHighScoreAsync(projectName, highScoreToDelete);
 
             return Ok();
         }
@@ -116,28 +123,7 @@ public class HighScoreController : ControllerBase
         {
             _logger.LogError(ex, ex.Message);
 
-            return StatusCode(500, "Oops! Something went wrong. Try again later.");
-        }
-    }
-
-    [HttpDelete]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAllHighScoresAsync()
-    {
-        try
-        {
-            await _service.DeleteAllHighScoresAsync();
-
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            return StatusCode(500, "Oops! Something went wrong. Try again later.");
+            return StatusCode(500, Constants.SomethingWentWrongMessage);
         }
     }
 }

@@ -5,16 +5,24 @@ using HighScoreAPI.Extensions;
 using HighScoreAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using ProfanityFilter.Interfaces;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+                .AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGenWithApiKeyHeader();
 
-builder.Services.AddDbContextOptions<HighScoreContext>();
+builder.Services.AddDbContextOptions<DatabaseContext>();
+
+builder.Services.AddTransient<IProjectDataMapper, ProjectDataMapper>();
+builder.Services.AddTransient<IProjectService, ProjectService>();
+
 builder.Services.AddTransient<IHighScoreDataMapper, HighScoreDataMapper>();
 builder.Services.AddTransient<IHighScoreService, HighScoreService>();
+
 builder.Services.AddSingleton<IProfanityFilter>(_ => new ProfanityFilter.ProfanityFilter());
 
 EnsureDatabaseIsCreated(builder);
@@ -38,8 +46,8 @@ app.Run();
 static void EnsureDatabaseIsCreated(WebApplicationBuilder builder)
 {
     var dbContextOptions = builder.Services.BuildServiceProvider()
-        .GetRequiredService<DbContextOptions<HighScoreContext>>();
+        .GetRequiredService<DbContextOptions<DatabaseContext>>();
 
-    using var context = new HighScoreContext(dbContextOptions);
+    using var context = new DatabaseContext(dbContextOptions);
     context.Database.EnsureCreated();
 }

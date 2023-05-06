@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using HighScoreAPI.Attributes;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace HighScoreAPI.Middleware;
 
@@ -29,10 +31,18 @@ public class ApiKeyMiddleware
             return;
         }
 
-        if (context.Request.Method == HttpMethods.Delete && !extractedApiKey.Equals(_adminApiKey))
+        var endpointFeature = context.Features.Get<IEndpointFeature>();
+        var endpoint = endpointFeature?.Endpoint;
+
+        if (endpoint is not null)
         {
-            await WriteUnauthorized(context);
-            return;
+            bool hasRequiresAdminKeyAttribute = endpoint.Metadata.Any(m => m is RequiresAdminKeyAttribute);
+
+            if (hasRequiresAdminKeyAttribute && !extractedApiKey.Equals(_adminApiKey))
+            {
+                await WriteUnauthorized(context);
+                return;
+            }
         }
 
         if (!extractedApiKey.Equals(_clientApiKey) && !extractedApiKey.Equals(_adminApiKey))
