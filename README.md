@@ -18,12 +18,12 @@ Make sure to change the default allowed client and admin keys in [`appsettings.j
 
 ### **/api/highscores**
 
-| Method | Endpoint                           | Description                              | Required `X-API-Key` |
-| ------ | ---------------------------------- | ---------------------------------------- | -------------------- |
-| GET    | `/{projectName}/top/{amount}`      | Get the top `amount` of highest scores   | Client               |
-| GET    | `/{projectName}/search/{username}` | Get the high score of user by `username` | Client               |
-| POST   | `/{projectName}`                   | Add a new high score                     | Client               |
-| DELETE | `/{projectName}`                   | Delete a high score (Same body as POST)  | Admin                |
+| Method | Endpoint                           | Description                              | `X-API-Key` |
+| ------ | ---------------------------------- | ---------------------------------------- | ----------- |
+| GET    | `/{projectName}/top/{amount}`      | Get the top `amount` of highest scores   | Client      |
+| GET    | `/{projectName}/search/{username}` | Get the high score of user by `username` | Client      |
+| POST   | `/{projectName}`                   | Add a new high score                     | Client      |
+| DELETE | `/{projectName}`                   | Delete a high score (Same body as POST)  | Admin       |
 
 **Adding a new high score**
 
@@ -41,11 +41,11 @@ Example `JSON`:
 
 ### **/api/projects**
 
-| Method | Endpoint                | Description                                                   | Required `X-API-Key` |
-| ------ | ----------------------- | ------------------------------------------------------------- | -------------------- |
-| GET    | `/search/{projectName}` | Get a project by `projectName`                                | Admin                |
-| POST   | `/`                     | Add a new project                                             | Admin                |
-| DELETE | `/{projectName}`        | Delete a project with all of its high scores by `projectName` | Admin                |
+| Method | Endpoint                | Description                                                   | `X-API-Key` |
+| ------ | ----------------------- | ------------------------------------------------------------- | ----------- |
+| GET    | `/search/{projectName}` | Get a project by `projectName`                                | Admin       |
+| POST   | `/`                     | Add a new project                                             | Admin       |
+| DELETE | `/{projectName}`        | Delete a project with all of its high scores by `projectName` | Admin       |
 
 **Adding a new project**
 
