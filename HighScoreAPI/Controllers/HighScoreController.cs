@@ -71,6 +71,7 @@ public class HighScoreController : ControllerBase
         }
     }
 
+    [RequiresEncryptedBody]
     [HttpPost]
     [ProducesResponseType(typeof(HighScoreDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]

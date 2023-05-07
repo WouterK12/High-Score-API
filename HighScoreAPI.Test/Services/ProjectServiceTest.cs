@@ -1,4 +1,5 @@
 ﻿using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.DTOs;
 using HighScoreAPI.Exceptions;
 using HighScoreAPI.Models;
 using HighScoreAPI.Services;
@@ -69,7 +70,7 @@ public class ProjectServiceTest
     public async Task AddProjectAsync_NameNullOrWhiteSpaceOrLongerThan64_ProjectService_ThrowsInvalidProjectException(string projectName)
     {
         // Arrange
-        var projectToAdd = new Project { Name = projectName };
+        var projectToAdd = new ProjectDTO(projectName);
         _dataMapperMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
                        .Returns(Task.CompletedTask);
 
@@ -89,7 +90,7 @@ public class ProjectServiceTest
     {
         // Arrange
         var nameWithLength64 = "OhAnExtremelyMegaSuperLongProjectNameWithTotalLength64Characters";
-        var projectToAdd = new Project { Name = nameWithLength64 };
+        var projectToAdd = new ProjectDTO(nameWithLength64);
         _dataMapperMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
                        .Returns(Task.CompletedTask);
 
@@ -117,7 +118,7 @@ public class ProjectServiceTest
     public async Task AddProjectAsync_NameWithWhiteSpaces_ProjectService_ReplacesWithDashes_CallsDataMapper(string projectName, string expected)
     {
         // Arrange
-        var projectToAdd = new Project { Name = projectName };
+        var projectToAdd = new ProjectDTO(projectName);
         _dataMapperMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
                        .Returns(Task.CompletedTask);
 
@@ -132,7 +133,7 @@ public class ProjectServiceTest
     public async Task AddProjectAsync_ValidProjectName_ProjectService_CallsDataMapper()
     {
         // Arrange
-        var projectToAdd = new Project { Name = "Smuggling-Pirates" };
+        var projectToAdd = new ProjectDTO("Smuggling-Pirates");
         _dataMapperMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
                        .Returns(Task.CompletedTask);
 

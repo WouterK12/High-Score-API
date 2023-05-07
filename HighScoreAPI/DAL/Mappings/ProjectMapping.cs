@@ -15,6 +15,10 @@ public class ProjectMapping : IEntityTypeConfiguration<Project>
                .HasMaxLength(Constants.ProjectNameMaxLength)
                .IsRequired();
 
+        builder.Property(p => p.AesKeyBase64)
+               .HasMaxLength(Constants.MaxEncryptionKeyLength)
+               .IsRequired();
+
         builder.HasMany(p => p.HighScores)
                .WithOne(hs => hs.Project);
     }

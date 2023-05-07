@@ -53,7 +53,7 @@ public class ProjectDataMapperTest
         string projectName = "Smuggling-Pirates";
 
         var highScore = new HighScore() { Username = "K03N", Score = 423 };
-        var project = new Project() { Name = projectName, HighScores = new HighScore[] { highScore } };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key", HighScores = new HighScore[] { highScore } };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -73,7 +73,7 @@ public class ProjectDataMapperTest
     public async Task AddProjectAsync_ProjectNotInDb_ProjectDataMapper_AddsProjectToDb()
     {
         // Arrange
-        var projectToAdd = new Project() { Name = "Smuggling-Pirates" };
+        var projectToAdd = new Project() { Name = "Smuggling-Pirates", AesKeyBase64 = "key" };
         var sut = new ProjectDataMapper(_options);
 
         // Act
@@ -91,12 +91,12 @@ public class ProjectDataMapperTest
         // Arrange
         string projectName = "Smuggling-Pirates";
 
-        var project = new Project() { Name = projectName };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key" };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
 
-        var projectToAdd = new Project() { Name = projectName };
+        var projectToAdd = new Project() { Name = projectName, AesKeyBase64 = "key" };
         var sut = new ProjectDataMapper(_options);
 
         // Act
@@ -121,7 +121,7 @@ public class ProjectDataMapperTest
             new() { Username = "UFOcreator4074", Score = 16 },
             new() { Username = "Hoeleboele", Score = 478 }
         };
-        var project = new Project() { Name = "Smuggling-Pirates", HighScores = highScores };
+        var project = new Project() { Name = "Smuggling-Pirates", AesKeyBase64 = "key", HighScores = highScores };
 
         using var context = new DatabaseContext(_options);
         context.Add(project);

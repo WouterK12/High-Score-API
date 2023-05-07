@@ -6,6 +6,7 @@ using HighScoreAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using ProfanityFilter.Interfaces;
 using System.Text.Json.Serialization;
+using HighScoreAPI.Middleware.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +24,9 @@ builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IHighScoreDataMapper, HighScoreDataMapper>();
 builder.Services.AddTransient<IHighScoreService, HighScoreService>();
 
-builder.Services.AddSingleton<IProfanityFilter>(_ => new ProfanityFilter.ProfanityFilter());
+builder.Services.AddSingleton<IProfanityFilter, ProfanityFilter.ProfanityFilter>();
+
+builder.Services.AddSingleton<IRequestWriter, RequestWriter>();
 
 EnsureDatabaseIsCreated(builder);
 
@@ -38,6 +41,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ApiKeyMiddleware>();
+app.UseMiddleware<EncryptionMiddleware>();
 
 app.MapControllers();
 

@@ -6,4 +6,5 @@ public readonly struct Constants
 
     public const int ProjectNameMaxLength = 64;
     public const int UsernameMaxLength = 64;
+    public const int MaxEncryptionKeyLength = 256;
 }

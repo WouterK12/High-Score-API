@@ -42,7 +42,7 @@ public class HighScoreDataMapperTest
             new() { Username = "Yvi", Score = 9241 },
             new() { Username = "Physician", Score = 10321 },
         };
-        var project = new Project() { Name = "Pointless-Harvest", HighScores = highScores };
+        var project = new Project() { Name = "Pointless-Harvest", AesKeyBase64 = "key", HighScores = highScores };
 
         using var context = new DatabaseContext(_options);
         context.Add(project);
@@ -84,8 +84,8 @@ public class HighScoreDataMapperTest
             new() { Username = "Yvi", Score = 9241 },
             new() { Username = "Physician", Score = 10321 },
         };
-        var project1 = new Project() { Name = "Smuggling-Pirates", HighScores = all12HighScores };
-        var project2 = new Project() { Name = "Pointless-Harvest", HighScores = otherHighScores };
+        var project1 = new Project() { Name = "Smuggling-Pirates", AesKeyBase64 = "key", HighScores = all12HighScores };
+        var project2 = new Project() { Name = "Pointless-Harvest", AesKeyBase64 = "key", HighScores = otherHighScores };
 
         using var context = new DatabaseContext(_options);
         context.Add(project1);
@@ -138,7 +138,7 @@ public class HighScoreDataMapperTest
         string username = "K03N";
 
         var highScore = new HighScore() { Username = username, Score = 423 };
-        var project = new Project() { Name = projectName, HighScores = new HighScore[] { highScore } };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key", HighScores = new HighScore[] { highScore } };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -158,7 +158,7 @@ public class HighScoreDataMapperTest
     {
         // Arrange
         string projectName = "Smuggling-Pirates";
-        var project = new Project() { Name = projectName };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key" };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -180,7 +180,7 @@ public class HighScoreDataMapperTest
     {
         // Arrange
         string projectName = "Smuggling-Pirates";
-        var project = new Project() { Name = projectName };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key" };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -207,7 +207,7 @@ public class HighScoreDataMapperTest
         string username = "K03N";
 
         var highScore = new HighScore() { Username = username, Score = 423 };
-        var project = new Project() { Name = projectName, HighScores = new HighScore[] { highScore } };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key", HighScores = new HighScore[] { highScore } };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -234,7 +234,7 @@ public class HighScoreDataMapperTest
         string username = "K03N";
 
         var highScore = new HighScore() { Username = username, Score = 423 };
-        var project = new Project() { Name = projectName, HighScores = new HighScore[] { highScore } };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key", HighScores = new HighScore[] { highScore } };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -259,7 +259,7 @@ public class HighScoreDataMapperTest
         // Arrange
         string projectName = "Smuggling-Pirates";
         var highScore = new HighScore() { Username = "K03N", Score = 423 };
-        var project = new Project() { Name = projectName, HighScores = new HighScore[] { highScore } };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key", HighScores = new HighScore[] { highScore } };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();
@@ -281,7 +281,7 @@ public class HighScoreDataMapperTest
         // Arrange
         string projectName = "Smuggling-Pirates";
         var highScore = new HighScore() { Username = "K03N", Score = 423 };
-        var project = new Project() { Name = projectName, HighScores = new HighScore[] { highScore } };
+        var project = new Project() { Name = projectName, AesKeyBase64 = "key", HighScores = new HighScore[] { highScore } };
         using var context = new DatabaseContext(_options);
         context.Add(project);
         await context.SaveChangesAsync();

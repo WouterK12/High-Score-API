@@ -1,4 +1,5 @@
 ﻿using HighScoreAPI.Attributes;
+using HighScoreAPI.DTOs;
 using HighScoreAPI.Exceptions;
 using HighScoreAPI.Models;
 using HighScoreAPI.Properties;
@@ -22,7 +23,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("search/{projectName}")]
-    [ProducesResponseType(typeof(HighScore), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Project), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -48,17 +49,17 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(HighScore), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Project), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> AddProjectAsync(Project projectToAdd)
+    public async Task<ActionResult<Project>> AddProjectAsync(ProjectDTO projectToAdd)
     {
         try
         {
-            await _service.AddProjectAsync(projectToAdd);
+            var result = await _service.AddProjectAsync(projectToAdd);
 
-            return Created($"/api/projects/search/{projectToAdd.Name}", projectToAdd);
+            return Created($"/api/projects/search/{projectToAdd.Name}", result);
         }
         catch (InvalidProjectException ex)
         {

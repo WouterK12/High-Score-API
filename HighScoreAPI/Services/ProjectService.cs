@@ -1,8 +1,11 @@
 ﻿using HighScoreAPI.DAL;
 using HighScoreAPI.DAL.DataMappers;
+using HighScoreAPI.DTOs;
+using HighScoreAPI.Encryption;
 using HighScoreAPI.Exceptions;
 using HighScoreAPI.Models;
 using HighScoreAPI.Properties;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace HighScoreAPI.Services;
@@ -26,15 +29,21 @@ public class ProjectService : IProjectService
         return result;
     }
 
-    public Task AddProjectAsync(Project projectToAdd)
+    public async Task<Project> AddProjectAsync(ProjectDTO projectToAdd)
     {
         if (string.IsNullOrWhiteSpace(projectToAdd.Name) || projectToAdd.Name.Length > Constants.ProjectNameMaxLength)
             throw new InvalidProjectException($"The project name must be between 1 and {Constants.ProjectNameMaxLength} characters!");
 
-        projectToAdd.Name = projectToAdd.Name.Trim();
-        projectToAdd.Name = Regex.Replace(projectToAdd.Name, @"\s+", "-");
+        string projectName = projectToAdd.Name.Trim();
+        projectName = Regex.Replace(projectName, @"\s+", "-");
 
-        return _dataMapper.AddProjectAsync(projectToAdd);
+        string keyBase64 = AesOperation.GenerateKeyBase64();
+
+        Project toAdd = new() { Name = projectName, AesKeyBase64 = keyBase64 };
+
+        await _dataMapper.AddProjectAsync(toAdd);
+
+        return toAdd;
     }
 
     public Task DeleteProjectByNameAsync(string projectName)

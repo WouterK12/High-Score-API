@@ -1,4 +1,5 @@
 ﻿using HighScoreAPI.Controllers;
+using HighScoreAPI.DTOs;
 using HighScoreAPI.Exceptions;
 using HighScoreAPI.Models;
 using HighScoreAPI.Services;
@@ -119,15 +120,15 @@ public class ProjectControllerTest
     public async Task AddProjectAsync_Project_ProjectController_CallsService()
     {
         // Arrange
-        var projectToAdd = new Project { Name = "Smuggling-Pirates" };
-        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
-                    .Returns(Task.CompletedTask);
+        var projectToAdd = new ProjectDTO("Smuggling-Pirates");
+        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<ProjectDTO>()))
+                    .ReturnsAsync(new Project { Name = "Smuggling-Pirates" });
 
         // Act
         await _sut.AddProjectAsync(projectToAdd);
 
         // Assert
-        _serviceMock.Verify(s => s.AddProjectAsync(It.Is<Project>(p =>
+        _serviceMock.Verify(s => s.AddProjectAsync(It.Is<ProjectDTO>(p =>
             p.Name == "Smuggling-Pirates")),
             Times.Once);
     }
@@ -136,16 +137,16 @@ public class ProjectControllerTest
     public async Task AddProjectAsync_Project_ProjectController_ReturnsCreated()
     {
         // Arrange
-        var projectToAdd = new Project { Name = "Smuggling-Pirates" };
-        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
-                    .Returns(Task.CompletedTask);
+        var projectToAdd = new ProjectDTO("Smuggling-Pirates");
+        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<ProjectDTO>()))
+                    .ReturnsAsync(new Project { Name = "Smuggling-Pirates" });
 
         // Act
         var result = await _sut.AddProjectAsync(projectToAdd);
 
         // Assert
-        Assert.IsInstanceOfType(result, typeof(CreatedResult));
-        var createdResult = result as CreatedResult;
+        Assert.IsInstanceOfType(result.Result, typeof(CreatedResult));
+        var createdResult = result.Result as CreatedResult;
         Assert.AreEqual("/api/projects/search/Smuggling-Pirates", createdResult.Location);
         Assert.IsInstanceOfType(createdResult.Value, typeof(Project));
         var resultProject = createdResult.Value as Project;
@@ -156,16 +157,16 @@ public class ProjectControllerTest
     public async Task AddProjectAsync_Project_ProjectController_ServiceThrowsInvalidProjectException_ReturnsBadRequest()
     {
         // Arrange
-        var projectToAdd = new Project { Name = "Smuggling-Pirates" };
-        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
+        var projectToAdd = new ProjectDTO("Smuggling-Pirates");
+        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<ProjectDTO>()))
                     .ThrowsAsync(new InvalidProjectException("Something went wrong!"));
 
         // Act
         var result = await _sut.AddProjectAsync(projectToAdd);
 
         // Assert
-        Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
-        var badRequestObjectResult = result as ObjectResult;
+        Assert.IsInstanceOfType(result.Result, typeof(BadRequestObjectResult));
+        var badRequestObjectResult = result.Result as ObjectResult;
         Assert.AreEqual("Something went wrong!", badRequestObjectResult.Value);
     }
 
@@ -173,12 +174,12 @@ public class ProjectControllerTest
     public async Task AddProjectAsync_Project_ProjectController_ServiceThrowsException_CallsLogger()
     {
         // Arrange
-        var projectToAdd = new Project { Name = "Smuggling-Pirates" };
-        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
+        var projectToAdd = new ProjectDTO("Smuggling-Pirates");
+        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<ProjectDTO>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
-        var result = await _sut.AddProjectAsync(projectToAdd);
+        await _sut.AddProjectAsync(projectToAdd);
 
         // Assert
         _loggerMock.Verify(LogLevel.Error, "Something went wrong!", Times.Once);
@@ -188,16 +189,16 @@ public class ProjectControllerTest
     public async Task AddProjectAsync_Project_ProjectController_ServiceThrowsException_ReturnsStatusCode500()
     {
         // Arrange
-        var projectToAdd = new Project { Name = "Smuggling-Pirates" };
-        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<Project>()))
+        var projectToAdd = new ProjectDTO("Smuggling-Pirates");
+        _serviceMock.Setup(s => s.AddProjectAsync(It.IsAny<ProjectDTO>()))
                     .ThrowsAsync(new Exception("Something went wrong!"));
 
         // Act
         var result = await _sut.AddProjectAsync(projectToAdd);
 
         // Assert
-        Assert.IsInstanceOfType(result, typeof(ObjectResult));
-        var objectResult = result as ObjectResult;
+        Assert.IsInstanceOfType(result.Result, typeof(ObjectResult));
+        var objectResult = result.Result as ObjectResult;
         Assert.AreEqual(500, objectResult.StatusCode);
         Assert.AreEqual("Oops! Something went wrong. Try again later.", objectResult.Value);
     }

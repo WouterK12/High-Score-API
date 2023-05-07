@@ -1,5 +1,6 @@
 ﻿using HighScoreAPI.Attributes;
 using HighScoreAPI.Middleware;
+using HighScoreAPI.Middleware.Workers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +12,7 @@ namespace HighScoreAPI.Test.Middleware;
 public class ApiKeyMiddlewareTest
 {
     private Mock<IRequestMock> _requestMock = null!;
+    private Mock<IRequestWriter> _requestWriterMock = null!;
 
     [TestInitialize]
     public void TestInitialize()
@@ -18,23 +20,25 @@ public class ApiKeyMiddlewareTest
         _requestMock = new Mock<IRequestMock>(MockBehavior.Strict);
         _requestMock.Setup(r => r.Next(It.IsAny<HttpContext>()))
                     .Returns(Task.CompletedTask);
+        _requestWriterMock = new Mock<IRequestWriter>(MockBehavior.Strict);
     }
 
     [TestMethod]
-    public async Task InvokeAsync_NoXAPIKeyHeader_ApiKeyMiddleware_SetsResponse400()
+    public async Task InvokeAsync_NoXAPIKeyHeader_ApiKeyMiddleware_CallsRequestWriter()
     {
         // Arrange
+        _requestWriterMock.Setup(rw => rw.WriteBadRequestAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
         var context = new DefaultHttpContext();
         var configuration = new ConfigurationBuilder().Build();
 
-        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, _requestWriterMock.Object, configuration);
 
         // Act
         await sut.InvokeAsync(context);
 
         // Assert
-        Assert.AreEqual(StatusCodes.Status400BadRequest, context.Response.StatusCode);
-        Assert.AreEqual("text/plain", context.Response.ContentType);
+        _requestWriterMock.Verify(rw => rw.WriteBadRequestAsync(context, "X-API-Key is required"), Times.Once);
         _requestMock.Verify(r => r.Next(It.IsAny<HttpContext>()), Times.Never);
     }
 
@@ -44,8 +48,8 @@ public class ApiKeyMiddlewareTest
         // Arrange
         var context = new DefaultHttpContext();
 
-        var andminKeyAttribute = new RequiresAdminKeyAttribute();
-        var endpointMetadataCollection = new EndpointMetadataCollection(andminKeyAttribute);
+        var adminKeyAttribute = new RequiresAdminKeyAttribute();
+        var endpointMetadataCollection = new EndpointMetadataCollection(adminKeyAttribute);
         var endpoint = new Endpoint(null, endpointMetadataCollection, null);
         var endpointFeatureMock = new Mock<IEndpointFeature>(MockBehavior.Strict);
         endpointFeatureMock.SetupProperty(ef => ef.Endpoint, endpoint);
@@ -55,7 +59,7 @@ public class ApiKeyMiddlewareTest
         context.Request.Headers.Add(HeaderNames.XAPIKey, correctKey);
         var configuration = BuildXAPIKeyConfiguration(correctKey, correctKey);
 
-        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, _requestWriterMock.Object, configuration);
 
         // Act
         await sut.InvokeAsync(context);
@@ -65,13 +69,15 @@ public class ApiKeyMiddlewareTest
     }
 
     [TestMethod]
-    public async Task InvokeAsync_AdminKeyAttribute_InvalidXAPIKeyHeader_ApiKeyMiddleware_SetsResponse401()
+    public async Task InvokeAsync_AdminKeyAttribute_InvalidXAPIKeyHeader_ApiKeyMiddleware_CallsRequestWriter()
     {
         // Arrange
+        _requestWriterMock.Setup(rw => rw.WriteUnauthorizedAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
         var context = new DefaultHttpContext();
 
-        var andminKeyAttribute = new RequiresAdminKeyAttribute();
-        var endpointMetadataCollection = new EndpointMetadataCollection(andminKeyAttribute);
+        var adminKeyAttribute = new RequiresAdminKeyAttribute();
+        var endpointMetadataCollection = new EndpointMetadataCollection(adminKeyAttribute);
         var endpoint = new Endpoint(null, endpointMetadataCollection, null);
         var endpointFeatureMock = new Mock<IEndpointFeature>(MockBehavior.Strict);
         endpointFeatureMock.SetupProperty(ef => ef.Endpoint, endpoint);
@@ -81,34 +87,34 @@ public class ApiKeyMiddlewareTest
         context.Request.Headers.Add(HeaderNames.XAPIKey, "invalid key");
         IConfigurationRoot configuration = BuildXAPIKeyConfiguration(correctKey, correctKey);
 
-        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, _requestWriterMock.Object, configuration);
 
         // Act
         await sut.InvokeAsync(context);
 
         // Assert
-        Assert.AreEqual(StatusCodes.Status401Unauthorized, context.Response.StatusCode);
-        Assert.AreEqual("text/plain", context.Response.ContentType);
+        _requestWriterMock.Verify(rw => rw.WriteUnauthorizedAsync(context, It.IsAny<string>()), Times.Once);
         _requestMock.Verify(r => r.Next(It.IsAny<HttpContext>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task InvokeAsync_InvalidXAPIKeyHeader_ApiKeyMiddleware_SetsResponse401()
+    public async Task InvokeAsync_InvalidXAPIKeyHeader_ApiKeyMiddleware_CallsRequestWriter()
     {
         // Arrange
+        _requestWriterMock.Setup(rw => rw.WriteUnauthorizedAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
         var context = new DefaultHttpContext();
         string correctKey = "correct key";
         context.Request.Headers.Add(HeaderNames.XAPIKey, "invalid key");
         IConfigurationRoot configuration = BuildXAPIKeyConfiguration(correctKey, correctKey);
 
-        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, _requestWriterMock.Object, configuration);
 
         // Act
         await sut.InvokeAsync(context);
 
         // Assert
-        Assert.AreEqual(StatusCodes.Status401Unauthorized, context.Response.StatusCode);
-        Assert.AreEqual("text/plain", context.Response.ContentType);
+        _requestWriterMock.Verify(rw => rw.WriteUnauthorizedAsync(context, It.IsAny<string>()), Times.Once);
         _requestMock.Verify(r => r.Next(It.IsAny<HttpContext>()), Times.Never);
     }
 
@@ -121,7 +127,7 @@ public class ApiKeyMiddlewareTest
         context.Request.Headers.Add(HeaderNames.XAPIKey, correctKey);
         var configuration = BuildXAPIKeyConfiguration(correctKey, "other key");
 
-        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, configuration);
+        var sut = new ApiKeyMiddleware(_requestMock.Object.Next, _requestWriterMock.Object, configuration);
 
         // Act
         await sut.InvokeAsync(context);

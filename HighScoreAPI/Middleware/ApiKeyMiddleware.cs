@@ -1,5 +1,5 @@
 ﻿using HighScoreAPI.Attributes;
-using Microsoft.AspNetCore.Authorization;
+using HighScoreAPI.Middleware.Workers;
 using Microsoft.AspNetCore.Http.Features;
 
 namespace HighScoreAPI.Middleware;
@@ -7,28 +7,30 @@ namespace HighScoreAPI.Middleware;
 public class ApiKeyMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly IRequestWriter _requestWriter;
     private readonly string _clientApiKey;
     private readonly string _adminApiKey;
 
-    private const string ContentTypePlainText = "text/plain";
+    private const string ClientConfigurationValueName = "Client";
+    private const string AdminConfigurationValueName = "Admin";
 
-    public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
+    public ApiKeyMiddleware(RequestDelegate next, IRequestWriter requestWriter, IConfiguration configuration)
     {
         _next = next;
+        _requestWriter = requestWriter;
 
         var apiKeys = configuration.GetSection(HeaderNames.XAPIKey);
-        _clientApiKey = apiKeys.GetValue<string>("Client");
-        _adminApiKey = apiKeys.GetValue<string>("Admin");
+        _clientApiKey = apiKeys.GetValue<string>(ClientConfigurationValueName);
+        _adminApiKey = apiKeys.GetValue<string>(AdminConfigurationValueName);
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public Task InvokeAsync(HttpContext context)
     {
         bool hasApiKeyHeader = context.Request.Headers.TryGetValue(HeaderNames.XAPIKey, out var extractedApiKey);
 
         if (!hasApiKeyHeader)
         {
-            await WriteBadRequest(context);
-            return;
+            return _requestWriter.WriteBadRequestAsync(context, HeaderNames.XAPIKey + " is required");
         }
 
         var endpointFeature = context.Features.Get<IEndpointFeature>();
@@ -40,31 +42,15 @@ public class ApiKeyMiddleware
 
             if (hasRequiresAdminKeyAttribute && !extractedApiKey.Equals(_adminApiKey))
             {
-                await WriteUnauthorized(context);
-                return;
+                return _requestWriter.WriteUnauthorizedAsync(context);
             }
         }
 
         if (!extractedApiKey.Equals(_clientApiKey) && !extractedApiKey.Equals(_adminApiKey))
         {
-            await WriteUnauthorized(context);
-            return;
+            return _requestWriter.WriteUnauthorizedAsync(context);
         }
 
-        await _next(context);
-    }
-
-    private async Task WriteBadRequest(HttpContext context)
-    {
-        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-        context.Response.ContentType = ContentTypePlainText;
-        await context.Response.WriteAsync(HeaderNames.XAPIKey + " is required");
-    }
-
-    private async Task WriteUnauthorized(HttpContext context)
-    {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        context.Response.ContentType = ContentTypePlainText;
-        await context.Response.WriteAsync("Unauthorized");
+        return _next(context);
     }
 }
