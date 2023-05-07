@@ -33,6 +33,12 @@ Make sure to change the default allowed client and admin keys in [`appsettings.j
 | POST   | `/`                     | Add a new project                                      | Admin       |
 | DELETE | `/{projectName}`        | Delete a project with all high scores by `projectName` | Admin       |
 
+### **/api/users**
+
+| Method | Endpoint                | Description                                         | `X-API-Key` |
+| ------ | ----------------------- | --------------------------------------------------- | ----------- |
+| GET    | `/{projectName}/random` | Get a random username that has not set a high score | Client      |
+
 ## Adding a new high score
 
 ### Disable encryption

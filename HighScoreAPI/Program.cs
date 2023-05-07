@@ -19,10 +19,11 @@ builder.Services.AddSwaggerGenWithApiKeyHeader();
 builder.Services.AddDbContextOptions<DatabaseContext>();
 
 builder.Services.AddTransient<IProjectDataMapper, ProjectDataMapper>();
-builder.Services.AddTransient<IProjectService, ProjectService>();
-
 builder.Services.AddTransient<IHighScoreDataMapper, HighScoreDataMapper>();
+
+builder.Services.AddTransient<IProjectService, ProjectService>();
 builder.Services.AddTransient<IHighScoreService, HighScoreService>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddSingleton<IProfanityFilter, ProfanityFilter.ProfanityFilter>();
 

@@ -21,6 +21,7 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
     <PackageReference Include="Profanity.Detector" Version="0.1.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Syllabore" Version="2.2.1" />
   </ItemGroup>
 
 </Project>

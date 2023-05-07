@@ -1,7 +1,6 @@
 using HighScoreAPI.Controllers;
 using HighScoreAPI.DTOs;
 using HighScoreAPI.Exceptions;
-using HighScoreAPI.Models;
 using HighScoreAPI.Services;
 using HighScoreAPI.Test.Extensions;
 using Microsoft.AspNetCore.Mvc;
