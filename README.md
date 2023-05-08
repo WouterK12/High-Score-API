@@ -119,7 +119,7 @@ string cipherText = EncryptData(jsonString, AesKeyBase64, out string vectorBase6
 
 Now that you have an encrypted high score and a `vectorBase64`, you can POST the `cipherText` to `/api/highscores/{projectName}`.
 
-Add an extra header called `AES-Operation` with the value of `vectorBase64`.  
+Add an extra header called `AES-Vector` with the value of `vectorBase64`.  
 The API uses this to decrypt the body of the request.
 
 ### Done!
