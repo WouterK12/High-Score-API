@@ -54,10 +54,10 @@ public class EncryptionMiddleware
     {
         try
         {
-            ActionDescriptor descriptor = (ActionDescriptor)endpoint.Metadata.Single(m => m is ActionDescriptor);
-
-            string keyBase64 = await GetProjectEncryptionKeyBase64(descriptor);
+            string keyBase64 = await GetProjectEncryptionKeyBase64(context.Request.RouteValues);
             string jsonString = await DecryptJsonStringAsync(context.Request.Body, keyBase64, aesVectorBase64);
+
+            ActionDescriptor descriptor = (ActionDescriptor)endpoint.Metadata.Single(m => m is ActionDescriptor);
             jsonString.DeserializeJsonToBodyType(descriptor);
 
             using MemoryStream stream = new(Encoding.ASCII.GetBytes(jsonString));
@@ -78,10 +78,12 @@ public class EncryptionMiddleware
         }
     }
 
-    private async Task<string> GetProjectEncryptionKeyBase64(ActionDescriptor descriptor)
+    private async Task<string> GetProjectEncryptionKeyBase64(RouteValueDictionary routeValues)
     {
-        if (!descriptor.RouteValues.TryGetValue(ProjectNameRouteValueName, out string? projectName))
+        if (!routeValues.TryGetValue(ProjectNameRouteValueName, out object? valueObject) || string.IsNullOrWhiteSpace(valueObject as string))
             throw new ArgumentNullException(null, $"Route Value \"{ProjectNameRouteValueName}\" must be set.");
+
+        string? projectName = valueObject as string;
 
         var existingProject = await _projectDataMapper.GetProjectByNameAsync(projectName);
 

@@ -208,19 +208,19 @@ public class EncryptionMiddlewareTest
     private static void AddEncryptedBodyAttributeEndpointFeature(DefaultHttpContext context, Type bodyType, bool withRouteValues = true)
     {
         var encryptedBodyAttribute = new RequiresEncryptedBodyAttribute();
-        var endpointMetadataCollection = new EndpointMetadataCollection(encryptedBodyAttribute, BuildActionDescriptorMock(bodyType, withRouteValues));
+        var endpointMetadataCollection = new EndpointMetadataCollection(encryptedBodyAttribute, BuildActionDescriptorMock(bodyType));
         var endpoint = new Endpoint(null, endpointMetadataCollection, null);
         var endpointFeatureMock = new Mock<IEndpointFeature>(MockBehavior.Strict);
         endpointFeatureMock.SetupProperty(ef => ef.Endpoint, endpoint);
         context.Features.Set(endpointFeatureMock.Object);
-    }
-
-    private static ActionDescriptor BuildActionDescriptorMock(Type bodyType, bool withRouteValues)
-    {
-        var descriptor = new ActionDescriptor();
 
         if (withRouteValues)
-            descriptor.RouteValues.Add("projectName", "Smuggling-Pirates");
+            context.Request.RouteValues.Add("projectName", "Smuggling-Pirates");
+    }
+
+    private static ActionDescriptor BuildActionDescriptorMock(Type bodyType)
+    {
+        var descriptor = new ActionDescriptor();
 
         var parameter = new ParameterDescriptor { Name = "highScoreToAdd", ParameterType = bodyType };
         descriptor.Parameters = new List<ParameterDescriptor> { parameter };
