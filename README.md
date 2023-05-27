@@ -92,7 +92,7 @@ public static string EncryptData(string plainText, string keyBase64, out string 
 
     using MemoryStream ms = new();
     using CryptoStream cs = new(ms, encryptor, CryptoStreamMode.Write);
-    using StreamWriter sw = new(cs);
+    using StreamWriter sw = new(cs, Encoding.ASCII);
     sw.Write(plainText);
     sw.Close();
 
@@ -119,6 +119,7 @@ string cipherText = EncryptData(jsonString, AesKeyBase64, out string vectorBase6
 
 Now that you have an encrypted high score and a `vectorBase64`, you can POST the `cipherText` to `/api/highscores/{projectName}`.
 
+Use the header `Content-Type` with the value `application/json`, since the high score will be JSON after it's been decrypted.  
 Add an extra header called `AES-Vector` with the value of `vectorBase64`.  
 The API uses this to decrypt the body of the request.
 

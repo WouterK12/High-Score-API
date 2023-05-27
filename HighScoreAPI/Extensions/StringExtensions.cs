@@ -5,13 +5,13 @@ namespace HighScoreAPI.Extensions;
 
 public static class StringExtensions
 {
-    public static object DeserializeJsonToBodyType(this string jsonString, ActionDescriptor descriptor)
+    public static object DeserializeJsonToBodyType(this string jsonString, ActionDescriptor descriptor, RouteValueDictionary routeValues)
     {
         Type bodyType = typeof(object);
 
         foreach (ParameterDescriptor parameter in descriptor.Parameters)
         {
-            if (descriptor.RouteValues.TryGetValue(parameter.Name, out string? value))
+            if (routeValues.TryGetValue(parameter.Name, out object? value))
                 continue;
 
             bodyType = parameter.ParameterType;

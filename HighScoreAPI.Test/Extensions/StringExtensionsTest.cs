@@ -1,6 +1,7 @@
 ﻿using HighScoreAPI.Extensions;
 using HighScoreAPI.Models;
 using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System.Xml.Linq;
@@ -23,15 +24,15 @@ public class StringExtensionsTest
                new() { Name = "projectName", ParameterType = typeof(string) },
                parameterWithBodyType,
                new() { Name = "dummyObject", ParameterType = typeof(object) }
-            },
-            RouteValues = new Dictionary<string, string?>()
-            {
-                { "projectName", "Smuggling-Pirates" }
             }
+        };
+        var routeValues = new RouteValueDictionary()
+        {
+            { "projectName", "Smuggling-Pirates" }
         };
 
         // Act
-        var result = StringExtensions.DeserializeJsonToBodyType(jsonString, descriptor);
+        var result = StringExtensions.DeserializeJsonToBodyType(jsonString, descriptor, routeValues);
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(HighScore));

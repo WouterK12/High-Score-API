@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace HighScoreAPI.Encryption;
 
@@ -25,7 +26,7 @@ public static class AesOperation
 
         using MemoryStream ms = new();
         using CryptoStream cs = new(ms, encryptor, CryptoStreamMode.Write);
-        using StreamWriter sw = new(cs);
+        using StreamWriter sw = new(cs, Encoding.ASCII);
         sw.Write(plainText);
         sw.Close();
 

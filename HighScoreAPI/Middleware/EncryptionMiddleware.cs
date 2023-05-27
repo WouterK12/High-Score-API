@@ -58,7 +58,7 @@ public class EncryptionMiddleware
             string jsonString = await DecryptJsonStringAsync(context.Request.Body, keyBase64, aesVectorBase64);
 
             ActionDescriptor descriptor = (ActionDescriptor)endpoint.Metadata.Single(m => m is ActionDescriptor);
-            jsonString.DeserializeJsonToBodyType(descriptor);
+            jsonString.DeserializeJsonToBodyType(descriptor, context.Request.RouteValues);
 
             using MemoryStream stream = new(Encoding.ASCII.GetBytes(jsonString));
             context.Request.Body = stream;
