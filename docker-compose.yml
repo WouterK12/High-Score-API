@@ -5,29 +5,38 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=Secret_101
     networks:
-        - high-score-api-network
+      - high-score-api-network
     volumes:
       - high-score-api-datavolume:/var/lib/mysql
   high-score-api:
-      build: 
-        context: ./
-        dockerfile: ./HighScoreAPI/Dockerfile.development
-      restart: always
-      depends_on:
-        - mysql
-      ports:
-        - '127.0.0.1:5205:80'
-      environment:
-        - MYSQL_HOSTNAME=mysql
-        - MYSQL_USER=root
-        - MYSQL_PASSWORD=Secret_101
-        - MYSQL_DATABASE_NAME=HighScoreAPIDev
-      networks:
-        - high-score-api-network
+    build:
+      context: ./
+      dockerfile: ./HighScoreAPI/Dockerfile.development
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - "127.0.0.1:5205:80"
+    environment:
+      - MYSQL_HOSTNAME=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=Secret_101
+      - MYSQL_DATABASE_NAME=HighScoreAPIDev
+    networks:
+      - high-score-api-network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.hss.rule=Host(`hss.wouterk12.com`)"
+      - "traefik.http.routers.hss.entrypoints=websecure"
+      - "traefik.http.routers.hss.tls.certresolver=letsencrypt"
+      - "traefik.http.services.hss.loadbalancer.server.port=80"
 
 volumes:
   high-score-api-datavolume:
 
 networks:
- high-score-api-network:
-    
+  high-score-api-network:
+  proxy:
+    external: true
